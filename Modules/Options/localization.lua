@@ -148,26 +148,6 @@ local locales = {
 			name_width = "Player name width",
 			gradients = "Gradients",
 		},
-		Master = {
-			panel_title = "Loot Master",
-			-- Group labels
-			specialrecipients = "Special Recipients Menu",
-			raidroll = "Special Rolls Menu",
-			awardannounce = "Announce Item Distribution",
-			-- Option labels
-			confirm_qualitythreshold = "Minimum confirm quality",
-			menu_roll = "Show raid roll",
-			menu_disenchant = "Show disenchanter",
- 			menu_disenchanters = "Disenchant character names",
-			menu_bank = "Show banker",
-			menu_bankers = "Banker character names",
-			menu_self = "Show self",
-			award_qualitythreshold = "Minimum announce quality",
-			award_channel = "Default chat announce channel",
-			award_channel_secondary = "Secondary chat announce channel",
-			award_guildannounce = "Echo in guild chat",
-			award_special = "Announce special recipients",
-		},
 		font = "Font",
 		font_sizes = "Sizes",
 		font_size_loot = "Loot",
@@ -285,15 +265,5 @@ local locales = {
 --@localization(locale="zhCN", format="lua_additive_table", table-name="locales.zhCN", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 --@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 --@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
-
---@localization(locale="ptBR", format="lua_additive_table", table-name="locales.ptBR", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="frFR", format="lua_additive_table", table-name="locales.frFR", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="deDE", format="lua_additive_table", table-name="locales.deDE", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="koKR", format="lua_additive_table", table-name="locales.koKR", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="esMX", format="lua_additive_table", table-name="locales.esMX", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="ruRU", format="lua_additive_table", table-name="locales.ruRU", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="zhCN", format="lua_additive_table", table-name="locales.zhCN", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
---@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Master")@
 
 XLoot:Localize("Options", locales)
