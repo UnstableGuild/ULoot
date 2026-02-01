@@ -11,10 +11,6 @@ local GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot,
 local CanEquipItem, IsItemUpgrade, FancyPlayerName = ULoot.CanEquipItem, ULoot.IsItemUpgrade, ULoot.FancyPlayerName
 local RollFramePrototype
 
-local BUILD_NUMBER = select(4, GetBuildInfo())
-local BUILD_HAS_DISENCHANT = BUILD_NUMBER >= 30300
-local BUILD_HAS_TRANSMOG_GREED = BUILD_NUMBER >= 49407
-
 local GetItemInfo = C_Item.GetItemInfo
 
 -------------------------------------------------------------------------------
@@ -338,20 +334,20 @@ function addon.AlertFrameHook(alert)
 			name:SetPoint('LEFT', alert.Icon, 'RIGHT', 10, -6)
 		end
 		if opt.alert_skin then
-			local overlay = CreateFrame('Frame', nil, alert, BackdropTemplateMixin and "BackdropTemplate")
+			local overlay = CreateFrame('Frame', nil, alert, "BackdropTemplate")
 			overlay:SetPoint('TOPLEFT', 11, -11)
 			overlay:SetPoint('BOTTOMRIGHT', -11, 11)
 			overlay:SetFrameLevel(alert:GetFrameLevel())
 			elements.overlay = overlay
 			Skinner:Skin(overlay, 'alert')
 			if opt.alert_background then
-				local backdrop = CreateFrame('Frame', nil, alert, BackdropTemplateMixin and "BackdropTemplate")
+				local backdrop = CreateFrame('Frame', nil, alert, "BackdropTemplate")
 				backdrop:SetAllPoints(overlay)
 				backdrop:SetFrameLevel(alert:GetFrameLevel()-1)
 				overlay.gradient:SetParent(backdrop)
 			end
 
-			local icon_frame = CreateFrame('Frame', nil, alert, BackdropTemplateMixin and "BackdropTemplate")
+			local icon_frame = CreateFrame('Frame', nil, alert, "BackdropTemplate")
 			icon_frame:SetPoint('CENTER', alert.Icon, 'CENTER', 0, 0)
 			icon_frame:SetWidth(alert.Icon:GetWidth() + 4)
 			icon_frame:SetHeight(alert.Icon:GetHeight() + 4)
@@ -626,7 +622,7 @@ do
 		frame:SetScript('OnClick', self.OnClick)
 
 		-- Overlay (For skin border)
-		local overlay = CreateFrame('frame', nil, frame, BackdropTemplateMixin and "BackdropTemplate")
+		local overlay = CreateFrame('frame', nil, frame, "BackdropTemplate")
 		overlay:SetFrameLevel(frame:GetFrameLevel())
 		overlay:SetAllPoints()
 		frame.overlay = overlay

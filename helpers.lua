@@ -97,11 +97,7 @@ function ULoot.FancyPlayerName(name, class, opt)
 	else
 		c = white
 	end
-	-- !CLASSIC
-	local role = 'NONE'
-	if UnitGroupRolesAssigned then
-		role = UnitGroupRolesAssigned(name)
-	end
+	local role = UnitGroupRolesAssigned(name)
 	local short, realm = UnitName(name)
 	if short then
 		name = short

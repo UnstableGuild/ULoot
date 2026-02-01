@@ -40,20 +40,19 @@ end
 local addon, L = ULoot:NewModule("Frame")
 
 -- Prepare frame/global
-ULootFrame = CreateFrame("Frame", "ULootFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+ULootFrame = CreateFrame("Frame", "ULootFrame", UIParent, "BackdropTemplate")
 ULootFrame.addon = addon
 local ULootFrame = ULootFrame
 
 -- Grab locals
 local mouse_focus, opt
 
--- Because forking the API is a great idea
-local LOOT_SLOT_NONE = LOOT_SLOT_NONE or Enum.LootSlotType.None
-local LOOT_SLOT_ITEM = LOOT_SLOT_ITEM or Enum.LootSlotType.Item
-local LOOT_SLOT_MONEY = LOOT_SLOT_MONEY or Enum.LootSlotType.Money
-local LOOT_SLOT_CURRENCY = LOOT_SLOT_CURRENCY or Enum.LootSlotType.Currency
+local LOOT_SLOT_NONE = Enum.LootSlotType.None
+local LOOT_SLOT_ITEM = Enum.LootSlotType.Item
+local LOOT_SLOT_MONEY = Enum.LootSlotType.Money
+local LOOT_SLOT_CURRENCY = Enum.LootSlotType.Currency
 
-local GetContainerNumFreeSlots = C_Container and C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots
+local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots
 local GetItemInfo = C_Item.GetItemInfo
 
 -- Chat output
@@ -250,21 +249,18 @@ function addon:ApplyOptions(in_options)
 				max_quality = math.max(max_quality, t.quality)
 			end
 		end
-		-- !CLASSIC
-		if C_CurrencyInfo then
-			for i,id in ipairs(preview_currency) do
-				local c = C_CurrencyInfo.GetCurrencyInfo(id)
-				if c and c.name then
-					local row =  Fake.rows[slot+i]
-					max_width = math.max(max_width, row:Update({
-						name = c.name,
-						icon = c.iconFileID,
-						quality = c.quality,
-						slotType = LOOT_SLOT_CURRENCY,
-						quantity = 5,
-					}))
-					Fake.slots[#preview_loot+i] = row
-				end
+		for i,id in ipairs(preview_currency) do
+			local c = C_CurrencyInfo.GetCurrencyInfo(id)
+			if c and c.name then
+				local row =  Fake.rows[slot+i]
+				max_width = math.max(max_width, row:Update({
+					name = c.name,
+					icon = c.iconFileID,
+					quality = c.quality,
+					slotType = LOOT_SLOT_CURRENCY,
+					quantity = 5,
+				}))
+				Fake.slots[#preview_loot+i] = row
 			end
 		end
 		Fake:SizeAndColor(max_width, max_quality)
@@ -275,7 +271,7 @@ function addon:OnOptionsShow(panel)
 	-- Create preview frame
 	local frame = ULootFakeFrame
 	if not frame then
-		frame = CreateFrame('Frame', 'ULootFakeFrame', panel, BackdropTemplateMixin and "BackdropTemplate")
+		frame = CreateFrame('Frame', 'ULootFakeFrame', panel, "BackdropTemplate")
 		frame.fake = true
 		frame.opt = ULootFrame.opt
 		self:BuildLootFrame(frame)
@@ -534,8 +530,6 @@ do
 		if not ULootButtonOnClick(self, button) then
 			if IsModifiedClick() then
 				HandleModifiedItemClick(GetLootSlotLink(self.slot))
-			elseif LootButton_OnClick then
-				LootButton_OnClick(self, button)
 			else
 				StaticPopup_Hide("CONFIRM_LOOT_DISTRIBUTION")
 				LootSlot(self.slot)
@@ -748,7 +742,7 @@ do
 	function BuildRow(frame, i)
 		local frame_name, opt, fake = frame:GetName()..'Button'..i, frame.opt, frame.fake
 		-- Create frames
-		local row = CreateFrame('Button', not fake and frame_name or nil, frame, BackdropTemplateMixin and "BackdropTemplate")
+		local row = CreateFrame('Button', not fake and frame_name or nil, frame, "BackdropTemplate")
 		local item = CreateFrame('Frame', nil, row)
 		local button_auto = CreateFrame('Button', nil, row)
 		local tex = item:CreateTexture(not fake and frame_name..'IconTexture' or nil, 'BACKGROUND')
@@ -1042,7 +1036,7 @@ do
 
 
 		-- Use a secondary frame for backdrop/border to allow the "frame" opacity to be changed
-		local overlay = CreateFrame('Frame', nil, f, BackdropTemplateMixin and "BackdropTemplate")
+		local overlay = CreateFrame('Frame', nil, f, "BackdropTemplate")
 		overlay:SetFrameLevel(5)
 		overlay:SetAllPoints()
 		f:Skin(overlay)
@@ -1327,7 +1321,7 @@ function addon:LOOT_CLOSED()
 	end
 	ULootFrame:Hide()
 	StaticPopup_Hide('LOOT_BIND')
-	if UIDropDownMenu_GetCurrentDropDown and UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
+	if UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
 		CloseDropDownMenus()
 	end
 end

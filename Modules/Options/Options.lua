@@ -669,24 +669,7 @@ function addon:OnEnable() -- Construct addon option tables here
 	end
 
 
---[=[ 	-- Generate reset staticpopup
-	if not StaticPopupDialogs['ULOOT_RESETPROFILE'] then
-		StaticPopupDialogs['ULOOT_RESETPROFILE'] = {
-			preferredIndex = 3,
-			text = L.confirm_reset_profile,
-			button1 = ACCEPT,
-			button2 = CANCEL,
-			OnAccept = function() addon:ResetProfile() end,
-			exclusive = true,
-			timeout = 0,
-			whileDead = true,
-			hideOnEscape = true,
-		}
-	end--]=]
-
-	if Settings then
-		addon:Init()
-	end
+	addon:Init()
 end
 
 function addon:OnInitialize()
@@ -745,10 +728,6 @@ function addon:Init()
 		AceConfigRegistry:RegisterOptionsTable("ULootProfile", LibStub("AceDBOptions-3.0"):GetOptionsTable(ULoot.db))
 		ULoot.profile_panel = AceConfigDialog:AddToBlizOptions("ULootProfile", L.profile, "ULoot")
 		ULoot.profile_panel.default = PanelDefault
-		-- Force list to expand
-		if not Settings then
-			InterfaceAddOnsList_Update()
-		end
 	end
 end
 
