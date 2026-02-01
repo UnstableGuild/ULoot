@@ -74,7 +74,7 @@ end
 function addon:OnInitialize()
 	eframe = CreateFrame("Frame")
 	self:InitializeModule(defaults, eframe)
-	ULoot:SetSlashCommand("xlm", self.SlashHandler)
+	ULoot:SetSlashCommand("ulm", self.SlashHandler)
 	opt = self.db.profile
 end
 
@@ -544,4 +544,4 @@ function ULootMonitor.TestSettings()
 	end
 end
 
-ULoot:SetSlashCommand("xlmd", ULootMonitor.TestSettings)
+ULoot:SetSlashCommand("ulmd", ULootMonitor.TestSettings)

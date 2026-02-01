@@ -1,7 +1,4 @@
 ## Interface: 120000, 120001
-## Interface-Classic: 11403
-## Interface-BCC: 20502
-## Interface-WoTLK: 30401
 ## Title: ULoot Frame
 ## Notes: A customizable, skinnable loot frame.
 ## Version: @project-version@
