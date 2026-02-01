@@ -297,7 +297,7 @@ local IsGroupState = {
 -------------------------------------------------------------------------------
 -- Link All
 
-local LinkLoot, LinkDropdown
+local LinkLoot
 do
 	local output = { }
 	function LinkLoot(channel, isExtraChannel)
@@ -348,34 +348,16 @@ do
 
 		return true
 	end
-
-
-	local function Click(dropdown, channel)
-		LinkLoot(channel)
-	end
-
-	LinkDropdown = CreateFrame('Frame', 'ULootLinkDropdown')
-	LinkDropdown.displayMode = 'MENU'
-	local channels = {
-		{ 'SAY', CHAT_MSG_SAY },
-		{ 'PARTY', CHAT_MSG_PARTY },
-		{ 'RAID', CHAT_MSG_RAID },
-		{ 'RAID_WARNING', CHAT_MSG_RAID_WARNING },
-		{ 'GUILD', CHAT_MSG_GUILD },
-		{ 'OFFICER', CHAT_MSG_OFFICER },
-	}
-	local info = { }
-	LinkDropdown.initialize = function(self, level)
-		for i, c in ipairs(channels) do
-			wipe(info)
-			info.text = c[2]
-			info.arg1 = c[1]
-			info.func = Click
-			info.notCheckable = 1
-			UIDropDownMenu_AddButton(info, 1)
-		end
-	end
 end
+
+local link_channels = {
+	{ 'SAY', CHAT_MSG_SAY },
+	{ 'PARTY', CHAT_MSG_PARTY },
+	{ 'RAID', CHAT_MSG_RAID },
+	{ 'RAID_WARNING', CHAT_MSG_RAID_WARNING },
+	{ 'GUILD', CHAT_MSG_GUILD },
+	{ 'OFFICER', CHAT_MSG_OFFICER },
+}
 
 -------------------------------------------------------------------------------
 -- Frame creation
@@ -886,7 +868,11 @@ do
 	-- Link loot menu
 	function FramePrototype:LinkClick(button)
 		if button == 'RightButton' then
-			ToggleDropDownMenu(1, nil, LinkDropdown, self)--, GetCursorPosition())
+			MenuUtil.CreateContextMenu(self, function(owner, rootDescription)
+				for _, c in ipairs(link_channels) do
+					rootDescription:CreateButton(c[2], function() LinkLoot(c[1]) end)
+				end
+			end)
 		else
 			LinkLoot(self:GetParent().opt.linkall_channel)
 		end
@@ -1321,9 +1307,6 @@ function addon:LOOT_CLOSED()
 	end
 	ULootFrame:Hide()
 	StaticPopup_Hide('LOOT_BIND')
-	if UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
-		CloseDropDownMenus()
-	end
 end
 
 function addon:LOOT_OPENED()

@@ -96,6 +96,7 @@ function addon:OnEnable()
 	eframe:RegisterEvent('START_LOOT_ROLL')
 	eframe:RegisterEvent('MODIFIER_STATE_CHANGED')
 	eframe:RegisterEvent('LOOT_ROLLS_COMPLETE')
+	eframe:RegisterEvent('LOOT_HISTORY_UPDATE_DROP')
 
 	-- Disable default frame
 	UIParent:UnregisterEvent("START_LOOT_ROLL")
@@ -266,6 +267,9 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 	frame.over = nil
 	frame.have_rolled = false
 	frame.lead_type = 'pass'
+	frame.rollInfos = nil
+	frame._encounterID = nil
+	frame._lootListID = nil
 
 	frame.text_bind:SetText(bop and '|cffff4422BoP' or '')
 	frame.text_loot:SetText(name)
@@ -300,6 +304,57 @@ function addon:LOOT_ROLLS_COMPLETE(lootHandle)
 			frame.bar.expires = GetTime()
 			anchor:Expire(frame, opt.expire_lost)
 		end
+	end
+end
+
+function addon:LOOT_HISTORY_UPDATE_DROP(encounterID, lootListID)
+	local dropInfo = C_LootHistory.GetSortedInfoForDrop(encounterID, lootListID)
+	if not dropInfo or not dropInfo.itemHyperlink then return end
+
+	local target
+
+	-- Update a frame already mapped to this drop
+	for _, frame in pairs(rolls) do
+		if frame._encounterID == encounterID and frame._lootListID == lootListID then
+			frame.rollInfos = dropInfo.rollInfos
+			target = frame
+			break
+		end
+	end
+
+	-- Match a new frame by item link
+	if not target then
+		for _, frame in pairs(rolls) do
+			if not frame._encounterID and frame.link == dropInfo.itemHyperlink then
+				frame._encounterID = encounterID
+				frame._lootListID = lootListID
+				frame.rollInfos = dropInfo.rollInfos
+				target = frame
+				break
+			end
+		end
+	end
+
+	-- Update button vote counts
+	if target and not target.over then
+		local RS = Enum.EncounterLootDropRollState
+		local need_c, greed_c, tmog_c, pass_c = 0, 0, 0, 0
+		for _, info in ipairs(dropInfo.rollInfos) do
+			local s = info.state
+			if s == RS.NeedMainSpec or s == RS.NeedOffSpec then
+				need_c = need_c + 1
+			elseif s == RS.Greed then
+				greed_c = greed_c + 1
+			elseif s == RS.Transmog then
+				tmog_c = tmog_c + 1
+			elseif s == RS.Pass then
+				pass_c = pass_c + 1
+			end
+		end
+		target.need:SetText(need_c)
+		target.greed:SetText(greed_c)
+		target.pass:SetText(pass_c)
+		target.transmog:SetText(tmog_c)
 	end
 end
 
@@ -423,8 +478,74 @@ do
 		end
 	end
 
+	-- Map EncounterLootDropRollState to our roll button types
+	local state_to_button = {
+		[Enum.EncounterLootDropRollState.NeedMainSpec] = 1,
+		[Enum.EncounterLootDropRollState.NeedOffSpec] = 1,
+		[Enum.EncounterLootDropRollState.Transmog] = 4,
+		[Enum.EncounterLootDropRollState.Greed] = 2,
+		[Enum.EncounterLootDropRollState.Pass] = 0,
+	}
+
+	local state_names = {
+		[Enum.EncounterLootDropRollState.NeedMainSpec] = NEED,
+		[Enum.EncounterLootDropRollState.NeedOffSpec] = NEED .. " (OS)",
+		[Enum.EncounterLootDropRollState.Transmog] = TRANSMOGRIFY or "Transmog",
+		[Enum.EncounterLootDropRollState.Greed] = GREED,
+		[Enum.EncounterLootDropRollState.Pass] = PASS,
+	}
+
+	local state_colors = {
+		[Enum.EncounterLootDropRollState.NeedMainSpec] = {.2, 1, .1},
+		[Enum.EncounterLootDropRollState.NeedOffSpec] = {.2, .8, .1},
+		[Enum.EncounterLootDropRollState.Transmog] = {.8, .2, .8},
+		[Enum.EncounterLootDropRollState.Greed] = {.1, .2, 1},
+		[Enum.EncounterLootDropRollState.Pass] = {.7, .7, .7},
+	}
+
 	local function AddTooltipLines(self, show_all, show)
-		return false
+		local rollInfos = self.rollInfos
+		if not rollInfos then return false end
+
+		local added = false
+		for _, info in ipairs(rollInfos) do
+			local state = info.state
+			local btn = state_to_button[state]
+			local is_decided = state ~= Enum.EncounterLootDropRollState.NoRoll
+			local show_this = false
+
+			if is_decided and opt.show_decided then
+				show_this = show_all or (show and btn == show)
+			elseif not is_decided and opt.show_undecided then
+				show_this = show_all
+			end
+
+			if show_this then
+				local colors = RAID_CLASS_COLORS[info.playerClass]
+				local cr, cg, cb = 1, 1, 1
+				if colors then
+					cr, cg, cb = colors.r, colors.g, colors.b
+				end
+				if is_decided then
+					local sc = state_colors[state]
+					local label = state_names[state] or ""
+					if info.roll then
+						label = label .. " - " .. info.roll
+					end
+					if info.isWinner then
+						label = label .. " *"
+					end
+					GameTooltip:AddDoubleLine(info.playerName, label, cr, cg, cb, sc[1], sc[2], sc[3])
+				else
+					GameTooltip:AddLine(info.playerName, cr, cg, cb)
+				end
+				added = true
+			end
+		end
+		if added then
+			GameTooltip:Show()
+		end
+		return added
 	end
 
 	---------------------------------------------------------------------------
