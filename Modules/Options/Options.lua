@@ -181,7 +181,6 @@ function addon:OnEnable() -- Construct addon option tables here
 	-- Streamlined options tables
 
 	local BetterOptions = {}
-	local table_remove = table.remove
 
 	function BetterOptions.Compile(set)
 		for i,v in ipairs(set) do
@@ -444,11 +443,6 @@ function addon:OnEnable() -- Construct addon option tables here
 		{ "down", L.down }
 	}
 
-	local leftright = {
-		{ "left", L.left },
-		{ "right", L.right },
-	}
-
 	-- Shared Media
 	local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
 
@@ -599,8 +593,6 @@ function addon:OnEnable() -- Construct addon option tables here
 				{ "prefix_upgrade", "input" },
 				{ "show_time_remaining", name = L.Group.text_time },
 				{ "show_undecided" },
-				{ "role_icon" },
-				{ "win_icon" },
 				{ "text_ilvl" },
 			}},
 			{ "font", "group", {
@@ -608,12 +600,7 @@ function addon:OnEnable() -- Construct addon option tables here
 				{ "font_flag", font_flag },
 			}},
 			{ "roll_tracking", "group", {
-				{ "track_all", width = "double" },
-				{ "track_player_roll", requires_inverse = "track_all" },
-				{ "track_by_threshold", requires_inverse = "track_all", width = "double" },
-				{ "track_threshold", item_qualities, requires = "track_by_threshold", name = L.minimum_quality },
 				{ "expiration", "header" },
-				{ "expire_won", "range", 5, 30, 1 },
 				{ "expire_lost", "range", 5, 30, 1 },
 			}},
 		})
@@ -632,13 +619,6 @@ end
 local function PanelDefault(self)
 	-- StaticPopup_Show("ULOOT_RESETPROFILE")
 	addon:ResetProfile()
-end
-
-local function PanelOkay(self)
-end
-
-local function PanelCancel(self)
-	-- Restore old options?
 end
 
 function addon:ResetProfile()

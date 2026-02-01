@@ -43,7 +43,6 @@ local function SetEventHandler(addon, frame)
 	end)
 end
 
-ULoot.slash_commands = {}
 function ULoot:SetSlashCommand(slash, func)
 	local key = "ULOOT_"..slash
 	_G["SLASH_"..key.."1"] = "/"..slash
@@ -99,7 +98,6 @@ local ULootModule = {
 		self:SetEventHandler(frame)
 	end,
 	SetEventHandler = SetEventHandler,
-	OnProfileChanged = ULoot.OnProfileChanged,
 }
 ULoot:SetDefaultModulePrototype(ULootModule)
 

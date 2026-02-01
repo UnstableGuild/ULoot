@@ -1,6 +1,6 @@
 ## Interface: 120000, 120001
 ## Title: ULoot Group
-## Notes: Customizable and skinnable loot roll, alert, and reroll frames
+## Notes: Customizable and skinnable loot roll frames
 ## Version: @project-version@
 ## Author: LiQiuDgg
 ## X-Category: Inventory

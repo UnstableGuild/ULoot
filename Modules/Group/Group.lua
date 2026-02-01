@@ -8,7 +8,7 @@ local rolls = {}
 local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS
 local GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string_format
 	= GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string.format
-local CanEquipItem, IsItemUpgrade, FancyPlayerName = ULoot.CanEquipItem, ULoot.IsItemUpgrade, ULoot.FancyPlayerName
+local CanEquipItem, IsItemUpgrade = ULoot.CanEquipItem, ULoot.IsItemUpgrade
 local RollFramePrototype
 
 local GetItemInfo = C_Item.GetItemInfo
@@ -18,8 +18,6 @@ local GetItemInfo = C_Item.GetItemInfo
 
 local defaults = {
 	profile = {
-		role_icon = true,
-		win_icon = false,
 		show_decided = true,
 		show_undecided = false,
 		show_time_remaining = false,
@@ -46,14 +44,7 @@ local defaults = {
 			y = UIParent:GetHeight() * .4
 		},
 
-		track_all = false,
-		track_player_roll = false,
-		track_by_threshold = true,
-		track_threshold = 3,
-
-		expire_won = 20,
 		expire_lost = 10,
-		shown_hook_warning = false
 	}
 }
 
@@ -151,14 +142,6 @@ end
 -- Event handlers
 
 addon.bars = {}
-local type_strings = {
-	need = NEED,
-	greed = GREED,
-	disenchant = ROLL_DISENCHANT,
-	pass = PASS
-}
-local rtypes = { [0] = 'pass', 'need', 'greed', 'disenchant', 'transmog' }
-
 function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 	local icon, name, count, quality, bop, need, greed, de, reason_need, reason_greed, reason_de, de_skill, canTransmog = GetLootRollItemInfo(id)
 	-- LootFrame.lua includes this sanity check
@@ -233,8 +216,6 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 	frame.quality = quality
 	frame.expires = bar.expires
 	frame.over = nil
-	frame.have_rolled = false
-	frame.lead_type = 'pass'
 	frame.rollInfos = nil
 	frame._encounterID = nil
 	frame._lootListID = nil
@@ -801,9 +782,7 @@ for i, t in ipairs(preview_loot) do
 	GetItemInfo(t[1])
 end
 
-local init, tests, links, StartFakeRoll = false, {}, {}, nil
-
-local deframe = CreateFrame('Frame')
+local init, StartFakeRoll = false, nil
 
 -- Simplified test - creates fake roll frames without per-player tracking
 function ULootGroup.TestSettings()

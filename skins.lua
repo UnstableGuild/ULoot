@@ -165,15 +165,10 @@ do
 		insets = {left = 3, right = 3, top = 3, bottom = 3},
 	}
 
-	local backdrop_empty = {
-		bgFile = ''
-	}
-
 	local bd_color = { 0, 0, 0, .9 }
 	local g_color = { .5, .5, .5, .6 }
 
 	-- Frame methods
-	local alphaworks = false
 	local function SetBorderColor(self, r, g, b, a)
 		for i, x in ipairs(self._skin_borders) do
 			x:SetVertexColor(r, g, b, a or 1)
@@ -224,10 +219,6 @@ do
 		frame._skin_borders = create_borders(frame, options)
 		frame.SetBorderColor = SetBorderColor
 		frame.GetBorderColor = GetBorderColor
-	end
-
-	function lib:SkinRaw(frame, options)
-		return create_borders(frame, meta(options)), SetBorderColor
 	end
 
 	function lib:UpdateSkin(frame, options, r, g, b, a)

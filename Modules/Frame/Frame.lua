@@ -47,7 +47,6 @@ local ULootFrame = ULootFrame
 -- Grab locals
 local opt
 
-local LOOT_SLOT_NONE = Enum.LootSlotType.None
 local LOOT_SLOT_ITEM = Enum.LootSlotType.Item
 local LOOT_SLOT_MONEY = Enum.LootSlotType.Money
 local LOOT_SLOT_CURRENCY = Enum.LootSlotType.Currency
@@ -63,9 +62,6 @@ end
 
 -- Performance blah blah blah
 -- Using this function is a pain in the ass.
-local BIND_ON_NONE = 0
-local BIND_ON_PICKUP = 1
-local BIND_ON_EQUIP = 2
 local function GetItemInfoTable(link)
 	-- Variable names match wowpedia documentation
 	local name, link, rarity, level, minLevel, type, subType, stackCount, equipLoc, fileDataID, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(link)
@@ -1082,7 +1078,6 @@ do
 			return row
 		end })
 
-		f.slots_index = {}
 		f.slots = {}
 
 		f:UpdateAppearance()
@@ -1130,7 +1125,7 @@ local function BoPRefresh()
 	ULootFrame:Update(false, true)
 end
 
-local _bag_slots, GetItemBindType = {}, ULoot.GetItemBindType
+local _bag_slots = {}
 function ULootFrame:Update(no_snap, is_refresh)
 	local numloot = GetNumLootItems()
 	if numloot == 0 then return nil end
@@ -1145,7 +1140,7 @@ function ULootFrame:Update(no_snap, is_refresh)
 	end
 
 	-- References
-	local rows, slots, slots_index = self.rows, wipe(self.slots), wipe(self.slots_index)
+	local rows, slots = self.rows, wipe(self.slots)
 	local bag_slots -- Only assigned if we start autolooting
 
 	-- Autolooting options
@@ -1268,7 +1263,6 @@ function ULootFrame:Update(no_snap, is_refresh)
 				row.item = slotData.link
 				row.quality = slotData.quality
 				row.slot = slot
-				row.frame_slot = our_slot
 				row:SetID(slot)
 
 				-- Update row
