@@ -1,15 +1,15 @@
----@class XLootAddon
-local XLoot = select(2, ...)
+---@class ULootAddon
+local ULoot = select(2, ...)
 local lib = {
 	skins = {},
 	masque_tweaks = {},
 }
-XLoot.Skin = lib
-local L = XLoot.L
+ULoot.Skin = lib
+local L = ULoot.L
 local print = print
 
 -- Custom skins
--- To add your own, simply make XLoot a dependency then call XLoot:RegisterSkin(name, skin_table)
+-- To add your own, simply make ULoot a dependency then call ULoot:RegisterSkin(name, skin_table)
 -- skin_table being a table with these keys:
 -- [required] texture - Path to texture
 -- [optional] name - Shown in UI, name provided to RegisterSkin used by default
@@ -20,26 +20,26 @@ local print = print
 -- [optional] padding, padding_highlight - Padding refers to how far outward (or inward) the border should be offset from the frame
 
 -- Tweaking Masque skins
--- To keep from having to change this file, call XLoot:RegisterMasqueTweak(skin_name, skin_table)
+-- To keep from having to change this file, call ULoot:RegisterMasqueTweak(skin_name, skin_table)
 -- following the same rules as custom skins
 -- Quick or temporary tweaks can be added to SKIN_TWEAKS.lua
 
 -- Base skin template
 lib.base = {
-	bar_texture = [[Interface\AddOns\XLoot\Textures\bar]],
+	bar_texture = [[Interface\AddOns\ULoot\Textures\bar]],
 	color_mod = .75,
 	row_spacing = 2,
 }
 
 -- Skin registration
-function XLoot:RegisterSkin(skin_name, skin_table)
+function ULoot:RegisterSkin(skin_name, skin_table)
 	setmetatable(skin_table, { __index = lib.base })
 	skin_table.key = skin_name
 	lib.skins[skin_name] = skin_table
 end
 
 -- Masque tweaks
-function XLoot:RegisterMasqueTweak(masque_name, tweak_table)
+function ULoot:RegisterMasqueTweak(masque_name, tweak_table)
 	lib.masque_tweaks[masque_name] = tweak_table
 	-- Apply to existing skins
 	if lib.skins[masque_name] then
@@ -284,7 +284,7 @@ end
 do
 	-- Merge current skin with set options
 	local function compile(data, name)
-		assert(data.sets[name], "Bad set name given to XLoot.Skin")
+		assert(data.sets[name], "Bad set name given to ULoot.Skin")
 		-- Return cached
 		if not data.compiled[name] then
 			data.compiled[name] = {}
@@ -364,8 +364,8 @@ do
 	end
 
 	-- Embed required functions and create data set to skin multiple similar frames
-	XLoot.skinners = {}
-	function XLoot:MakeSkinner(target, sets, default_set)
+	ULoot.skinners = {}
+	function ULoot:MakeSkinner(target, sets, default_set)
 		if not default_set and not sets.default then
 			sets.default = {}
 		end
@@ -379,7 +379,7 @@ do
 		target.Reskin = Reskin
 		target.Skin = Skin
 		target.Highlight = Highlight
-		table.insert(XLoot.skinners, target)
+		table.insert(ULoot.skinners, target)
 		return target
 	end
 end
@@ -388,12 +388,12 @@ end
 -- Default skins
 local svelte = {
 	name = ('|c2244dd22%s|r'):format(L.skin_svelte),
-	texture = [[Interface\AddOns\XLoot\Textures\border_svelte]],
+	texture = [[Interface\AddOns\ULoot\Textures\border_svelte]],
 }
 local legacy = {
 	name = ('|c2244dd22%s|r'):format(L.skin_legacy),
 	row_spacing = 3,
-	texture = [[Interface\AddOns\XLoot\Textures\border_legacy]],
+	texture = [[Interface\AddOns\ULoot\Textures\border_legacy]],
 	size = 16,
 	highlight = {
 		size = 12
@@ -403,7 +403,7 @@ local legacy = {
 local smooth = {
 	name = ('|c2244dd22%s|r'):format(L.skin_smooth),
 	row_spacing = 3,
-	texture = [[Interface\AddOns\XLoot\Textures\border_smooth]],
+	texture = [[Interface\AddOns\ULoot\Textures\border_smooth]],
 	size = 14,
 	padding = 1,
 	highlight = {
@@ -414,14 +414,14 @@ local smooth = {
 }
 
 -- Register default skins
-XLoot:RegisterSkin('svelte', svelte)
-XLoot:RegisterSkin('legacy', legacy)
-XLoot:RegisterSkin('smooth', smooth)
+ULoot:RegisterSkin('svelte', svelte)
+ULoot:RegisterSkin('legacy', legacy)
+ULoot:RegisterSkin('smooth', smooth)
 
 -------------------------------------------------------------------------------
 -- Index Masque skins later so we definitely catch all of them
 
-function XLoot:SkinsOnInitialize()
+function ULoot:SkinsOnInitialize()
 	-- Masque skins
 	local Masque = LibStub('Masque', true) or LibStub('LibButtonFacade', true)
 	if Masque and Masque.GetSkins then
@@ -446,15 +446,15 @@ function XLoot:SkinsOnInitialize()
 						end
 					end
 					-- Register
-					XLoot:RegisterSkin(k, skin)
+					ULoot:RegisterSkin(k, skin)
 				end
 			end
 		else -- Warn about outdated Masque
-			print("XLoot: Use of masque skins requires the beta version of Masque.")
+			print("ULoot: Use of masque skins requires the beta version of Masque.")
 		end
 	end
 
-	XLoot:ApplySkinTweaks()
+	ULoot:ApplySkinTweaks()
 
 	-- Activate current skin
 	self:SetSkin(self.db.profile.skin)
@@ -463,7 +463,7 @@ end
 -------------------------------------------------------------------------------
 -- Skin access
 
-function XLoot:SetSkin(name)
+function ULoot:SetSkin(name)
 	lib.current = lib.skins[lib.skins[name] and name or 'smooth']
 end
 

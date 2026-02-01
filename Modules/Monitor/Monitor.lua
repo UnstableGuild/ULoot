@@ -1,12 +1,12 @@
 -- Create module
-local addon, L = XLoot:NewModule("Monitor")
+local addon, L = ULoot:NewModule("Monitor")
 
-XLootMonitor = CreateFrame("Frame", "XLootMonitor", UIParent)
-XLootMonitor.addon = addon
+ULootMonitor = CreateFrame("Frame", "ULootMonitor", UIParent)
+ULootMonitor.addon = addon
 
 -- Grab locals
 local print, opt, eframe, anchor = print
-local CopperToString, FancyPlayerName = XLoot.CopperToString, XLoot.FancyPlayerName
+local CopperToString, FancyPlayerName = ULoot.CopperToString, ULoot.FancyPlayerName
 local table_insert, table_remove = table.insert, table.remove
 local me = UnitName("player")
 
@@ -74,7 +74,7 @@ end
 function addon:OnInitialize()
 	eframe = CreateFrame("Frame")
 	self:InitializeModule(defaults, eframe)
-	XLoot:SetSlashCommand("xlm", self.SlashHandler)
+	ULoot:SetSlashCommand("xlm", self.SlashHandler)
 	opt = self.db.profile
 end
 
@@ -83,7 +83,7 @@ function addon:OnEnable()
 	LibStub("LootEvents"):RegisterLootCallback(self.LOOT_EVENT)
 	eframe:RegisterEvent("MODIFIER_STATE_CHANGED")
 	-- Set up skins
-	XLoot:MakeSkinner(self, {
+	ULoot:MakeSkinner(self, {
 		default = { gradient = opt.gradients },
 		anchor = { r = .4, g = .4, b = .4, a = .6, gradient = false },
 		anchor_pretty = { r = .6, g = .6, b = .6, a = .8 },
@@ -92,8 +92,8 @@ function addon:OnEnable()
 		row_highlight = { type = "highlight" }
 	})
 	-- Set up anchor
-	anchor = XLoot.Stack:CreateStaticStack(self.CreateRow, L.anchor, opt.anchor)
-	self:Skin(anchor, XLoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
+	anchor = ULoot.Stack:CreateStaticStack(self.CreateRow, L.anchor, opt.anchor)
+	self:Skin(anchor, ULoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
 end
 
 function addon:ApplyOptions()
@@ -164,7 +164,7 @@ end
 
 function addon.LOOT_EVENT(event, pattern, ...)
 	if events[event] and events[event](...) == false then
-		print("XLoot Monitor: Error handling event", event, pattern, ...)
+		print("ULoot Monitor: Error handling event", event, pattern, ...)
 	end
 end
 
@@ -530,7 +530,7 @@ end
 
 local qactive = false
 
-function XLootMonitor.TestSettings()
+function ULootMonitor.TestSettings()
 	local now = GetTime()
 	-- for i=1,15 do
 	-- 	table.insert(queue, { now + i, unpack(tests[random(1, #tests)]) })
@@ -544,4 +544,4 @@ function XLootMonitor.TestSettings()
 	end
 end
 
-XLoot:SetSlashCommand("xlmd", XLootMonitor.TestSettings)
+ULoot:SetSlashCommand("xlmd", ULootMonitor.TestSettings)

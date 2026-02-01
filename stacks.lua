@@ -1,12 +1,12 @@
----@class XLootAddon
-local XLoot = select(2, ...)
+---@class ULootAddon
+local ULoot = select(2, ...)
 local lib = {}
-XLoot.Stack = lib
-local L = XLoot.L
+ULoot.Stack = lib
+local L = ULoot.L
 local print = print
 
----@class XLootAnchorPrototype: Button
-local AnchorPrototype = XLoot.NewPrototype()
+---@class ULootAnchorPrototype: Button
+local AnchorPrototype = ULoot.NewPrototype()
 
 -- ANCHOR element
 do

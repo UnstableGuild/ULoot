@@ -4,7 +4,7 @@ local locales = {
 		anchor = "Group Rolls",
 		alert_anchor = "Loot Popups",
 		undecided = "Undecided",
-		debug_warning = "|c22ff0000XLoot Group: Entering debugging mode. THIS BREAKS LOOTING UNTIL YOU RELOG OR /RELOAD.",
+		debug_warning = "|c22ff0000ULoot Group: Entering debugging mode. THIS BREAKS LOOTING UNTIL YOU RELOG OR /RELOAD.",
 	},
 	-- Possibly localized
 	ptBR = {
@@ -47,4 +47,4 @@ local locales = {
 --@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Group")@
 --@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Group")@
 
-XLoot:Localize("Group", locales)
+ULoot:Localize("Group", locales)

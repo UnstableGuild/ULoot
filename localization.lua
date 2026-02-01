@@ -1,5 +1,5 @@
----@class XLootAddon
-local XLoot = select(2, ...)
+---@class ULootAddon
+local ULoot = select(2, ...)
 
 local function CompileLocales(locales)
 	local L = locales[GetLocale()] and locales[GetLocale()] or locales.enUS
@@ -15,7 +15,7 @@ local function CompileLocales(locales)
 end
 
 -- locales expects table: { enUS = {...}, ... }
-function XLoot:Localize(name, locales)
+function ULoot:Localize(name, locales)
 	-- We need to extract the root namespace due to how Curse is currently doing localizations.
 	for _,t in pairs(locales) do
 		if t[name] then
@@ -30,9 +30,9 @@ end
 
 local locales = {
 	enUS = {
-		skin_svelte = "XLoot: Svelte",
-		skin_legacy = "XLoot: Legacy",
-		skin_smooth = "XLoot: Smooth",
+		skin_svelte = "ULoot: Svelte",
+		skin_legacy = "ULoot: Legacy",
+		skin_smooth = "ULoot: Smooth",
 		anchor_hide = "hide",
 		anchor_hide_desc = "Lock this module in position\nThis will hide the anchor,\nbut it can be shown again from the options",
 	},
@@ -60,4 +60,4 @@ local locales = {
 --@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Core")@
 
 
-XLoot.L = CompileLocales(locales)
+ULoot.L = CompileLocales(locales)

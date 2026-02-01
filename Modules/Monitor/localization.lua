@@ -44,4 +44,4 @@ local locales = {
 --@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 --@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 
-XLoot:Localize("Monitor", locales)
+ULoot:Localize("Monitor", locales)

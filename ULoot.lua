@@ -1,7 +1,7 @@
----@class XLootAddon: AceAddon
-local XLoot = LibStub("AceAddon-3.0"):NewAddon(select(2, ...), "XLoot")
-_G.XLoot = XLoot
-local L = XLoot.L
+---@class ULootAddon: AceAddon
+local ULoot = LibStub("AceAddon-3.0"):NewAddon(select(2, ...), "ULoot")
+_G.ULoot = ULoot
+local L = ULoot.L
 local print, wprint = print, print
 
 -------------------------------------------------------------------------------
@@ -17,17 +17,17 @@ local defaults = {
 -- Module helpers
 
 -- Return module localization with new module
-local _NewModule = XLoot.NewModule
----@return XLootModule module
+local _NewModule = ULoot.NewModule
+---@return ULootModule module
 ---@return table localization
-function XLoot:NewModule(module_name, ...)
+function ULoot:NewModule(module_name, ...)
 	local new = _NewModule(self, module_name, ...)
 	return new, self["L_"..module_name]
 end
 
-local _GetModule = XLoot.GetModule
-function XLoot:GetModule(module_name, ...)
-	return module_name == "Core" and XLoot or _GetModule(self, module_name, ...)
+local _GetModule = ULoot.GetModule
+function ULoot:GetModule(module_name, ...)
+	return module_name == "Core" and ULoot or _GetModule(self, module_name, ...)
 end
 
 -- Set up basic event handler
@@ -43,30 +43,30 @@ local function SetEventHandler(addon, frame)
 	end)
 end
 
-XLoot.slash_commands = {}
-function XLoot:SetSlashCommand(slash, func)
-	local key = "XLOOT_"..slash
+ULoot.slash_commands = {}
+function ULoot:SetSlashCommand(slash, func)
+	local key = "ULOOT_"..slash
 	_G["SLASH_"..key.."1"] = "/"..slash
 	_G.SlashCmdList[key] = func
 end
 
-function XLoot:ShowOptionPanel(module)
-	if not XLootOptions then
-		C_AddOns.EnableAddOn("XLoot_Options")
-		C_AddOns.LoadAddOn("XLoot_Options")
+function ULoot:ShowOptionPanel(module)
+	if not ULootOptions then
+		C_AddOns.EnableAddOn("ULoot_Options")
+		C_AddOns.LoadAddOn("ULoot_Options")
 	end
-	XLootOptions:OpenPanel(module)
+	ULootOptions:OpenPanel(module)
 end
 
-function XLoot:ApplyOptions(in_options)
+function ULoot:ApplyOptions(in_options)
 	self.opt = self.db.profile
 	-- Update skin
-	XLoot:SetSkin(self.opt.skin)
-	for _,v in ipairs(XLoot.skinners) do
+	ULoot:SetSkin(self.opt.skin)
+	for _,v in ipairs(ULoot.skinners) do
 		v:Reskin()
 	end
 	-- Update all modules
-	for k,v in pairs(XLoot.modules) do
+	for k,v in pairs(ULoot.modules) do
 		if v.db then
 			v.opt = v.db.profile
 		end
@@ -77,32 +77,32 @@ function XLoot:ApplyOptions(in_options)
 end
 
 -- Add shortcuts for modules
----@class XLootModule: AceAddon
-local XLootModule = {
+---@class ULootModule: AceAddon
+local ULootModule = {
 	opt = {},
 	InitializeModule = function(self, defaults, frame)
 		local module_name = self:GetName()
 		-- Set up DB namespace
-		self.db = XLoot.db:RegisterNamespace(module_name, defaults)
+		self.db = ULoot.db:RegisterNamespace(module_name, defaults)
 		self.opt = self.db.profile
 
 		function self.ShowOptions()
-			XLoot:ShowOptionPanel(self)
+			ULoot:ShowOptionPanel(self)
 		end
 		-- Default slash command
-		XLoot:SetSlashCommand(("XLoot"..module_name):lower(), self.ShowOptions)
+		ULoot:SetSlashCommand(("ULoot"..module_name):lower(), self.ShowOptions)
 		-- Set event handler
 		self:SetEventHandler(frame)
 	end,
 	SetEventHandler = SetEventHandler,
-	OnProfileChanged = XLoot.OnProfileChanged,
+	OnProfileChanged = ULoot.OnProfileChanged,
 }
-XLoot:SetDefaultModulePrototype(XLootModule)
+ULoot:SetDefaultModulePrototype(ULootModule)
 
 -------------------------------------------------------------------------------
 -- Prototype helper
 
-function XLoot.Prototype_New(self, new)
+function ULoot.Prototype_New(self, new)
 	local new = new or {}
 	for k,v in pairs(self) do
 		if k ~= "New" and k ~= "_New" then
@@ -115,16 +115,16 @@ function XLoot.Prototype_New(self, new)
 	return new
 end
 
-function XLoot.NewPrototype()
-	return { New = XLoot.Prototype_New, _New = XLoot.Prototype_New }
+function ULoot.NewPrototype()
+	return { New = ULoot.Prototype_New, _New = ULoot.Prototype_New }
 end
 
 -------------------------------------------------------------------------------
 -- Addon init
 
-function XLoot:OnInitialize()
+function ULoot:OnInitialize()
 	-- Init DB
-	self.db = LibStub("AceDB-3.0"):New("XLootADB", defaults, true)
+	self.db = LibStub("AceDB-3.0"):New("ULootADB", defaults, true)
 	self.opt = self.db.profile
 	self.db.RegisterCallback(self, "OnProfileChanged", "ApplyOptions")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ApplyOptions")
@@ -133,27 +133,27 @@ function XLoot:OnInitialize()
 	self:SkinsOnInitialize()
 end
 
-function XLoot:OnEnable()
+function ULoot:OnEnable()
 	-- Check for old addons
-	for _,name in ipairs({ "XLoot1.0", "XLootGroup", "XLootMonitor" }) do
+	for _,name in ipairs({ "XLoot1.0", "ULootGroup", "ULootMonitor" }) do
 		if C_AddOns.IsAddOnLoaded(name) then
 			C_AddOns.DisableAddOn(name)
-			wprint(("|c2244dd22XLoot|r now includes |c2244dd22%s|r - the old version will be disabled on next load, and no longer needs to be installed."):format(name))
+			wprint(("|c2244dd22ULoot|r now includes |c2244dd22%s|r - the old version will be disabled on next load, and no longer needs to be installed."):format(name))
 		end
 	end
 
 	-- Create option stub
 	if Settings then
-		C_AddOns.EnableAddOn("XLoot_Options")
-		C_AddOns.LoadAddOn("XLoot_Options")
+		C_AddOns.EnableAddOn("ULoot_Options")
+		C_AddOns.LoadAddOn("ULoot_Options")
 	else
-		local stub = CreateFrame("Frame", "XLootConfigPanel", UIParent)
-		stub.name = "XLoot"
+		local stub = CreateFrame("Frame", "ULootConfigPanel", UIParent)
+		stub.name = "ULoot"
 		stub:Hide()
 		InterfaceOptions_AddCategory(stub)
 		stub:SetScript("OnShow", function() self:ShowOptionPanel(self) end)
 	end
-	self:SetSlashCommand("xloot", function() self:ShowOptionPanel(self) end)
+	self:SetSlashCommand("uloot", function() self:ShowOptionPanel(self) end)
 end
 
 --@do-not-package@

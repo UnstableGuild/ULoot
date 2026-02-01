@@ -1,5 +1,5 @@
----@class XLootAddon
-local XLoot = select(2, ...)
+---@class ULootAddon
+local ULoot = select(2, ...)
 local buffer, print = {}, print
 
 local table_insert, table_concat, string_format = table.insert, table.concat, string.format
@@ -12,7 +12,7 @@ local coin_table = {
 for i,v in ipairs(coin_table) do
 	v[4] = string_format("|cff%s%s|r", v[3], v[1])
 end
-function XLoot.CopperToString(copper)
+function ULoot.CopperToString(copper)
 	coin_table[1][2] = floor(copper / 10000)
 	coin_table[2][2] = mod(floor(copper / 100), 100)
 	coin_table[3][2] = mod(copper, 100)
@@ -28,8 +28,8 @@ function XLoot.CopperToString(copper)
 	return table_concat(buffer, ", ")
 end
 
-XLootTooltip = CreateFrame('GameTooltip', 'XLootTooltip', UIParent, 'GameTooltipTemplate')
-local tooltip = XLootTooltip
+ULootTooltip = CreateFrame('GameTooltip', 'ULootTooltip', UIParent, 'GameTooltipTemplate')
+local tooltip = ULootTooltip
 tooltip:SetOwner(UIParent, "ANCHOR_NONE")
 
 local bind_types = {
@@ -39,13 +39,13 @@ local bind_types = {
 }
 
 local tooltip_lines = {
-	XLootTooltipTextLeft2,
-	XLootTooltipTextLeft3,
-	XLootTooltipTextLeft4,
-	XLootTooltipTextLeft5
+	ULootTooltipTextLeft2,
+	ULootTooltipTextLeft3,
+	ULootTooltipTextLeft4,
+	ULootTooltipTextLeft5
 }
 
-function XLoot.GetItemBindType(link)
+function ULoot.GetItemBindType(link)
 	tooltip:ClearLines()
 	tooltip:SetHyperlink(link)
 	for i=1, #tooltip_lines do
@@ -56,23 +56,23 @@ function XLoot.GetItemBindType(link)
 	end
 end
 
-function XLoot.CanEquipItem(link)
+function ULoot.CanEquipItem(link)
 	if not C_Item.IsEquippableItem(link) then
 		return false
 	end
 	tooltip:ClearLines()
 	tooltip:SetHyperlink(link)
 	for i=2, 5 do
-		local line = _G["XLootTooltipTextRight"..i]
+		local line = _G["ULootTooltipTextRight"..i]
 		if line and line:GetText() then
 			local r, g, b = line:GetTextColor()
-			local lr, lg, lb = _G["XLootTooltipTextLeft"..i]:GetTextColor()
+			local lr, lg, lb = _G["ULootTooltipTextLeft"..i]:GetTextColor()
 			return (r > .8 and b > .8 and g > .8 and lr > .8 and lg > .8 and lb > .8) and true or false
 		end
 	end
 end
-function XLoot.IsItemUpgrade(link)
-	if not XLoot.CanEquipItem(link) then
+function ULoot.IsItemUpgrade(link)
+	if not ULoot.CanEquipItem(link) then
 		return false
 	end
 	local id = string.match(link, "item:(%d+)")
@@ -88,7 +88,7 @@ local dimensions = {
 	DAMAGER = '16:32',
 	TANK = '32:48'
 }
-function XLoot.FancyPlayerName(name, class, opt)
+function ULoot.FancyPlayerName(name, class, opt)
 	local c
 	if _G.CUSTOM_CLASS_COLORS then
 		c = _G.CUSTOM_CLASS_COLORS[class]
@@ -120,7 +120,7 @@ local temp_list, template = {},
 [[local string_match = string.match
 return function(message)
 	local pcall_status, m1, m2, m3, m4, m5 = pcall(string_match, message, [=[^%s$]=])
-	assert(pcall_status, "Please report this on XLoot's curse page", message, [=[^%s$]=], m1)
+	assert(pcall_status, "Please report this on ULoot's curse page", message, [=[^%s$]=], m1)
 	return %s
 end]]
 
@@ -155,7 +155,7 @@ end
 
 -- Match string against a pattern, caching the inverted pattern
 local invert_cache = {}
-function XLoot.Deformat(str, pattern)
+function ULoot.Deformat(str, pattern)
 	local func = invert_cache[pattern]
 	if not func then
 		local inverted, arglist = invert(pattern)
@@ -164,7 +164,7 @@ function XLoot.Deformat(str, pattern)
 	end
 	return func(str)
 end
-XLoot.InvertFormatString = invert
+ULoot.InvertFormatString = invert
 
 --@do-not-package@
 -- Debug

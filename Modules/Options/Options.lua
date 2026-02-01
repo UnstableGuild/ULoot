@@ -14,19 +14,19 @@ BetterOptions.Compile(better_option_table)
 - Compiles BetterOptions tables to intermediate option tables which must be provided
 to either a supporting option system or Finalize() for use as a validating AceOptionsTable
 > better_option_table expects a "BetterOptions" option table
-Start by defining your module options here in addon:OnEnable below other module options with the call XLootOptions:RegisterOptions("ModuleName", table), inside a if XLoot:GetModule(ModuleName, true) block.
+Start by defining your module options here in addon:OnEnable below other module options with the call ULootOptions:RegisterOptions("ModuleName", table), inside a if ULoot:GetModule(ModuleName, true) block.
 
-XLootOptions:RegisterOptions(module_data, better_option_table)
-- Registers a BetterOptions table with XLootOptions
+ULootOptions:RegisterOptions(module_data, better_option_table)
+- Registers a BetterOptions table with ULootOptions
 > module_data and better_option_table follow BetterOptions.Compile and Finalize()
 
-XLootOptions:RegisterAceOptionTable("ModuleName", ace_option_table)
+ULootOptions:RegisterAceOptionTable("ModuleName", ace_option_table)
 - Registers a "normal" ace option table with no additional steps.
 - Must provide get and set methods at least in the root group(s), as default get and set rely on Finalize()
 
 
 Features/Finalize:
-- Fill missing localization from XLootOptions.L[module_data.name][key|key_desc]
+- Fill missing localization from ULootOptions.L[module_data.name][key|key_desc]
 - Generate .values from {{ "key", "value" }, ...} .item tables and set them appropriately
 - Get/Set from db key/subkey instead of key via .subtable[, .subkey]
 - Propagate .defaults to child nodes
@@ -55,11 +55,11 @@ Features/BetterOptions:
 Please note that inline and non-inline groups do not mix well for AceConfigDialog. -]=]
 
 -- Create module
-local addon, L = XLoot:NewModule("Options")
+local addon, L = ULoot:NewModule("Options")
 addon.modules = {}
 
 -- Global
-_G.XLootOptions = addon
+_G.ULootOptions = addon
 
 -- Locals
 local print = print
@@ -84,7 +84,7 @@ local update_throttle, elapsed = CreateFrame("Frame"), 0
 update_throttle:Hide()
 update_throttle:SetScript("OnUpdate", function(self, delta)
 	if elapsed > .1 then
-		XLoot:ApplyOptions(true)
+		ULoot:ApplyOptions(true)
 		elapsed = 0
 		self:Hide()
 	else
@@ -385,7 +385,7 @@ function addon:OnEnable() -- Construct addon option tables here
 	-- Global config header
 	self.config = {
 		type = "group",
-		name = "XLoot",
+		name = "ULoot",
 		get = get,
 		set = set,
 		childGroups = "tab"
@@ -393,16 +393,16 @@ function addon:OnEnable() -- Construct addon option tables here
 
 	local function OnCoreChanged(k, v)
 		if k == 'skin' then
-			XLoot:ApplyOptions(true)
+			ULoot:ApplyOptions(true)
 		end
 	end
 
 	local skins = {}
-	local options = Finalize({ name = "Core", addon =  XLoot, OnChanged = OnCoreChanged }, BetterOptions.Compile({
+	local options = Finalize({ name = "Core", addon =  ULoot, OnChanged = OnCoreChanged }, BetterOptions.Compile({
 		{ "details", "description" },
 		{ "skin", "select", values = function()
 			wipe(skins)
-			for k,v in pairs(XLoot.Skin.skins) do
+			for k,v in pairs(ULoot.Skin.skins) do
 				skins[k] = v.name
 			end
 			return skins
@@ -481,8 +481,8 @@ function addon:OnEnable() -- Construct addon option tables here
 	-------------------------------------------------------------------------------
 	-- Module configs
 
-	-- XLoot Frame
-	if XLoot:GetModule("Frame", true) then
+	-- ULoot Frame
+	if ULoot:GetModule("Frame", true) then
 		local when_group = {
 			{ "never", L.when_never },
 			{ "solo", L.when_solo },
@@ -492,7 +492,7 @@ function addon:OnEnable() -- Construct addon option tables here
 			{ "raid", L.when_raid }
 		}
 
- 		addon:RegisterOptions({ name = "Frame", addon =  XLootFrame.addon }, {
+ 		addon:RegisterOptions({ name = "Frame", addon =  ULootFrame.addon }, {
 			{ "frame_options", "group", {
 				{ "frame_width_automatic", width = "double" },
 				{ "old_close_button" },
@@ -582,9 +582,9 @@ function addon:OnEnable() -- Construct addon option tables here
 		})
 	end
 
-	-- XLoot Group
-	if XLoot:GetModule("Group", true) then
-		addon:RegisterOptions({ name = "Group", addon =  XLootGroup }, {
+	-- ULoot Group
+	if ULoot:GetModule("Group", true) then
+		addon:RegisterOptions({ name = "Group", addon =  ULootGroup }, {
 			{ "anchors", "group", {
 				{ "roll_anchor_visible", "toggle", "roll_anchor", "visible", set = set_anchor },
 			}},
@@ -623,11 +623,11 @@ function addon:OnEnable() -- Construct addon option tables here
 		})
 	end
 
-	-- XLoot Monitor
-	if XLoot:GetModule("Monitor", true) then
-		addon:RegisterOptions({ name = "Monitor", addon =  XLootMonitor.addon }, {
+	-- ULoot Monitor
+	if ULoot:GetModule("Monitor", true) then
+		addon:RegisterOptions({ name = "Monitor", addon =  ULootMonitor.addon }, {
 			{ "testing", "group", {
-				{ "test_settings", "execute", func = XLootMonitor.TestSettings }
+				{ "test_settings", "execute", func = ULootMonitor.TestSettings }
 			}},
 			{ "anchor", "group", {
 				{ "visible", set = set_anchor, width = "double" },
@@ -674,8 +674,8 @@ function addon:OnEnable() -- Construct addon option tables here
 
 
 --[=[ 	-- Generate reset staticpopup
-	if not StaticPopupDialogs['XLOOT_RESETPROFILE'] then
-		StaticPopupDialogs['XLOOT_RESETPROFILE'] = {
+	if not StaticPopupDialogs['ULOOT_RESETPROFILE'] then
+		StaticPopupDialogs['ULOOT_RESETPROFILE'] = {
 			preferredIndex = 3,
 			text = L.confirm_reset_profile,
 			button1 = ACCEPT,
@@ -701,7 +701,7 @@ end
 -- Panel methods
 
 local function PanelDefault(self)
-	-- StaticPopup_Show("XLOOT_RESETPROFILE")
+	-- StaticPopup_Show("ULOOT_RESETPROFILE")
 	addon:ResetProfile()
 end
 
@@ -713,8 +713,8 @@ local function PanelCancel(self)
 end
 
 function addon:ResetProfile()
-	XLoot.db:ResetProfile()
-	LibStub("AceConfigRegistry-3.0"):NotifyChange("XLoot")
+	ULoot.db:ResetProfile()
+	LibStub("AceConfigRegistry-3.0"):NotifyChange("ULoot")
 end
 
 local init = false
@@ -727,15 +727,15 @@ function addon:Init()
 		if not Settings then
 			-- Remove bootstrap
 			for i,frame in ipairs(INTERFACEOPTIONS_ADDONCATEGORIES) do
-				if frame.name == "XLoot" then
+				if frame.name == "ULoot" then
 					table.remove(INTERFACEOPTIONS_ADDONCATEGORIES, i)
 				end
 			end
 		end
 		-- Generate new panel
-		AceConfigRegistry:RegisterOptionsTable("XLoot", self.config)
-		local panel = AceConfigDialog:AddToBlizOptions("XLoot")
-		XLoot.option_panel = panel
+		AceConfigRegistry:RegisterOptionsTable("ULoot", self.config)
+		local panel = AceConfigDialog:AddToBlizOptions("ULoot")
+		ULoot.option_panel = panel
 		panel.default = PanelDefault
 		-- panel.okay = PanelOkay
 		-- panel.cancel = PanelCancel
@@ -756,9 +756,9 @@ function addon:Init()
 		end)
 
  		-- Create profile panel
-		AceConfigRegistry:RegisterOptionsTable("XLootProfile", LibStub("AceDBOptions-3.0"):GetOptionsTable(XLoot.db))
-		XLoot.profile_panel = AceConfigDialog:AddToBlizOptions("XLootProfile", L.profile, "XLoot")
-		XLoot.profile_panel.default = PanelDefault
+		AceConfigRegistry:RegisterOptionsTable("ULootProfile", LibStub("AceDBOptions-3.0"):GetOptionsTable(ULoot.db))
+		ULoot.profile_panel = AceConfigDialog:AddToBlizOptions("ULootProfile", L.profile, "ULoot")
+		ULoot.profile_panel.default = PanelDefault
 		-- Force list to expand
 		if not Settings then
 			InterfaceAddOnsList_Update()
@@ -770,9 +770,9 @@ function addon:OpenPanel(module)
 	addon:Init()
 	-- Open panel
 	if Settings then
-		Settings.OpenToCategory("XLoot")
+		Settings.OpenToCategory("ULoot")
 	else
-		InterfaceOptionsFrame_OpenToCategory(XLoot.option_panel)
+		InterfaceOptionsFrame_OpenToCategory(ULoot.option_panel)
 	end
 end
 

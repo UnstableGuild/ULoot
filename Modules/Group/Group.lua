@@ -1,7 +1,7 @@
 -- Create module
-local addon, L = XLoot:NewModule("Group")
+local addon, L = ULoot:NewModule("Group")
 -- Prepare global
-XLootGroup = addon
+ULootGroup = addon
 -- Grab locals
 local opt, anchor, alert_anchor, mouse_focus, Skinner
 local rolls = {}
@@ -10,7 +10,7 @@ local GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot,
 	= GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string.format
 local HistoryGetItem, HistoryGetPlayerInfo, HistoryGetNumItems
 	= C_LootHistory.GetItem, C_LootHistory.GetPlayerInfo, C_LootHistory.GetNumItems
-local CanEquipItem, IsItemUpgrade, FancyPlayerName = XLoot.CanEquipItem, XLoot.IsItemUpgrade, XLoot.FancyPlayerName
+local CanEquipItem, IsItemUpgrade, FancyPlayerName = ULoot.CanEquipItem, ULoot.IsItemUpgrade, ULoot.FancyPlayerName
 local RollFramePrototype
 
 local BUILD_NUMBER = select(4, GetBuildInfo())
@@ -92,14 +92,14 @@ local eframe = CreateFrame("Frame")
 function addon:OnInitialize()
 	self:InitializeModule(defaults, eframe)
 	opt = self.db.profile
-	XLootGroup.opt = opt
+	ULootGroup.opt = opt
 	-- Extra slash command
-	XLoot:SetSlashCommand("xlg", self.SlashHandler)
+	ULoot:SetSlashCommand("xlg", self.SlashHandler)
 end
 
 function addon:OnEnable()
 	if BUILD_NUMBER >= 100000 then
-		print("XLoot Group does not yet work on this version and will not be loaded")
+		print("ULoot Group does not yet work on this version and will not be loaded")
 		return
 	end
 	-- Register events
@@ -120,7 +120,7 @@ function addon:OnEnable()
 
 	-- Set up skins
 	Skinner = {}
-	XLoot:MakeSkinner(Skinner, {
+	ULoot:MakeSkinner(Skinner, {
 		anchor = { r = .4, g = .4, b = .4, a = .6, gradient = false },
 		anchor_pretty = { r = .6, g = .6, b = .6, a = .8 },
 		row = { gradient = false },
@@ -131,13 +131,13 @@ function addon:OnEnable()
 	}, 'row')
 
 	-- Create Roll anchor
-	anchor = XLoot.Stack:CreateStaticStack(function() return RollFramePrototype:New() end, L.anchor, opt.roll_anchor)
+	anchor = ULoot.Stack:CreateStaticStack(function() return RollFramePrototype:New() end, L.anchor, opt.roll_anchor)
 	anchor:SetFrameLevel(7)
 	anchor:Scale(opt.roll_anchor.scale)
 	addon.anchor = anchor
 
 	-- Create alert anchor
-	alert_anchor = XLoot.Stack:CreateAnchor(L.alert_anchor, opt.alert_anchor)
+	alert_anchor = ULoot.Stack:CreateAnchor(L.alert_anchor, opt.alert_anchor)
 	alert_anchor:SetFrameLevel(7)
 	addon.alert_anchor = alert_anchor
 	--  DISABLED-PATCH: LEGION PRE-PATCH
@@ -145,8 +145,8 @@ function addon:OnEnable()
 	alert_anchor:Hide()
 
 	-- Skin anchor
-	Skinner:Skin(anchor, XLoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
-	Skinner:Skin(alert_anchor, XLoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
+	Skinner:Skin(anchor, ULoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
+	Skinner:Skin(alert_anchor, ULoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
 
 	-- Row fader
 	local fader = CreateFrame('Frame')
@@ -210,7 +210,7 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 	local icon, name, count, quality, bop, need, greed, de, reason_need, reason_greed, reason_de, de_skill = GetLootRollItemInfo(id)
 	-- LootFrame.lua includes this sanity check
 	if name == nil then
-		print('XLoot Group: Ignoring START_LOOT_ROLL with no name')
+		print('ULoot Group: Ignoring START_LOOT_ROLL with no name')
 		return
 	end
 	local link = GetLootRollItemLink(id)
@@ -654,7 +654,7 @@ do
 	---------------------------------------------------------------------------
 	-- Roll buttons
 	---------------------------------------------------------------------------
-	local RollButtonPrototype = XLoot.NewPrototype()
+	local RollButtonPrototype = ULoot.NewPrototype()
 	do
 		function RollButtonPrototype:OnClick()
 			RollOnLoot(self.parent.rollid, self.type)
@@ -748,7 +748,7 @@ do
 	---------------------------------------------------------------------------
 	-- Roll frames
 	---------------------------------------------------------------------------
-	RollFramePrototype = XLoot.NewPrototype()
+	RollFramePrototype = ULoot.NewPrototype()
 	-- Events
 	function RollFramePrototype:OnEnter()
 		mouse_focus = self
@@ -880,7 +880,7 @@ do
 		bar:SetScript('OnUpdate', self.OnBarUpdate)
 		bar.parent = frame
 		frame.bar = bar
-		-- Reference bar for quick re-skinning when XLoot skin changes
+		-- Reference bar for quick re-skinning when ULoot skin changes
 		table.insert(addon.bars, bar)
 
 		local spark = bar:CreateTexture(nil, 'OVERLAY')
@@ -963,7 +963,7 @@ end
 -- AddOn setup and events
 ---------------------------------------------------------------------------
 
--- Update skins when XLoot skin changes
+-- Update skins when ULoot skin changes
 function addon:SkinUpdate()
 	local skin = Skinner:Reskin()
 	local padding = skin.padding or 2
@@ -1023,7 +1023,7 @@ local init, tests, links, StartFakeRoll = false, {}, {}, nil
 local deframe = CreateFrame('Frame')
 
 -- Currently only debugs one roll at a time.
-function XLootGroup.TestSettings()
+function ULootGroup.TestSettings()
 	local FakeHistory
 	local schedule = {}
 	local type_index = { 'need', 'greed', 'disenchant', [0] = 'pass' }
@@ -1128,7 +1128,7 @@ function XLootGroup.TestSettings()
 	StartFakeRoll()
 end
 
-XLoot:SetSlashCommand('xlgd', XLootGroup.TestSettings)
+ULoot:SetSlashCommand('xlgd', ULootGroup.TestSettings)
 
 --@do-not-package@
 local function alert()
@@ -1138,7 +1138,7 @@ local function alert()
 	MoneyWonAlertFrame_ShowAlert(random(1, 100000))
 end
 
-XLoot:SetSlashCommand('xlga', alert)
+ULoot:SetSlashCommand('xlga', alert)
 
 local AC = LibStub('AceConsole-2.0', true)
 if AC then print = function(...) AC:PrintLiteral(...) end end

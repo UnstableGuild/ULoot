@@ -3,11 +3,11 @@ local locales = {
 	enUS = {
 		Core = {
 			panel_title = "Global options",
-			details = "Skin is applied to all XLoot modules. Most other settings currently require a /reload to be applied. Please open a ticket with any issues.\nTo turn off a single module, disable it like any normal addon.",
+			details = "Skin is applied to all ULoot modules. Most other settings currently require a /reload to be applied. Please open a ticket with any issues.\nTo turn off a single module, disable it like any normal addon.",
 			skin = "Skin",
 			skin_desc = "Select skin to use. Includes Masque skins",
 			skin_anchors = "Apply to anchors",
-			skin_anchors_desc = "Apply skin to anchors that XLoot uses",
+			skin_anchors_desc = "Apply skin to anchors that ULoot uses",
 			module_header = "Module options",
 		},
 		Frame = {
@@ -68,11 +68,11 @@ local locales = {
 			linkall_show = "Link button visibility",
 			linkall_first_only = "Only link top item",
 
-			autolooting_text = "XLoot's autolooting features act separately from the default UI. As such, if both are enabled, you may recieve warnings like 'that object is busy'. They are safe to ignore, but can be resolved by picking one autoloot method to use exclusively.",
+			autolooting_text = "ULoot's autolooting features act separately from the default UI. As such, if both are enabled, you may recieve warnings like 'that object is busy'. They are safe to ignore, but can be resolved by picking one autoloot method to use exclusively.",
 
 			autolooting_list = "To automatically loot specific items, list them below.\n  Example: Linen Cloth,Ashbringer,Copper Ore",
 
-			autolooting_details = "XLoot will choose the highest setting when deciding to loot a slot. This allows, for example, auto looting everything while solo yet only quest items and money while in a group.",
+			autolooting_details = "ULoot will choose the highest setting when deciding to loot a slot. This allows, for example, auto looting everything while solo yet only quest items and money while in a group.",
 
 			show_slot_errors = "Looting errors in chat",
 			show_slot_errors_details = "Print a chat message when a loot item cannot be shown for some reason. Most of these should be able to be safely ignored.",
@@ -266,4 +266,4 @@ local locales = {
 --@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 --@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 
-XLoot:Localize("Options", locales)
+ULoot:Localize("Options", locales)

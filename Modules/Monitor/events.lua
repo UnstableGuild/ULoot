@@ -74,7 +74,7 @@ if IsInGroup() then
 	end
 end
 
-local Deformat = XLoot.Deformat
+local Deformat = ULoot.Deformat
 
 local loot_patterns, group_patterns, unsortedloot, currentsort
 
@@ -299,7 +299,7 @@ for i,v in ipairs(items) do
 	GetItemInfo(v[1])
 end
 
-XLoot:SetSlashCommand("xe", function(msg)
+ULoot:SetSlashCommand("xe", function(msg)
 	for i=1,4 do
 		Handler((LOOT_ITEM_SELF):format(select(2, GetItemInfo(items[random(1, #items)][1]))))
 	end
@@ -369,7 +369,7 @@ local function tprint(...)
 end
 
 -- Test each locale
-local function inv(pat) return select(1, XLoot.InvertFormatString(pat)) end
+local function inv(pat) return select(1, ULoot.InvertFormatString(pat)) end
 local fmt = string.format
 for locale, t in pairs(locales) do
 	setmetatable(t, locale_mt)

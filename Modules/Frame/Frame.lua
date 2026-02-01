@@ -5,18 +5,18 @@
 	- handled: True if any previous caller acted on event
 
 	Hook like this:
-	local XLootButtonOnClick_Orig = XLootButtonOnClick
-	function XLootButtonOnClick(row, button, handled)
+	local ULootButtonOnClick_Orig = ULootButtonOnClick
+	function ULootButtonOnClick(row, button, handled)
 		if not handled and thing_i_want_to_check then
 			handled = true
 			dostuff()
 		end
-		XLootButtonOnClick_Orig(row, button, handled)
+		ULootButtonOnClick_Orig(row, button, handled)
 	end
 --]]---------------------------------------
 
 -- Include QDKP2 compatibility by request
-function XLootButtonOnClick(row, button, handled)
+function ULootButtonOnClick(row, button, handled)
 	if not handled
 		and QDKP2_IsManagingSession
 		and IsAltKeyDown()
@@ -37,12 +37,12 @@ function XLootButtonOnClick(row, button, handled)
 end
 
 -- Create module
-local addon, L = XLoot:NewModule("Frame")
+local addon, L = ULoot:NewModule("Frame")
 
 -- Prepare frame/global
-XLootFrame = CreateFrame("Frame", "XLootFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
-XLootFrame.addon = addon
-local XLootFrame = XLootFrame
+ULootFrame = CreateFrame("Frame", "ULootFrame", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+ULootFrame.addon = addon
+local ULootFrame = ULootFrame
 
 -- Grab locals
 local mouse_focus, opt
@@ -59,7 +59,7 @@ local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
 -- Chat output
 local print, wprint = print, print
 local function xprint(text)
-	wprint(('%s: %s'):format('|c2244dd22XLoot|r', tostring(text)))
+	wprint(('%s: %s'):format('|c2244dd22ULoot|r', tostring(text)))
 end
 
 -- Performance blah blah blah
@@ -179,18 +179,18 @@ local defaults = {
 -- Module init
 
 function addon:OnInitialize()
-	self:InitializeModule(defaults, XLootFrame)
+	self:InitializeModule(defaults, ULootFrame)
 	opt = self.db.profile
-	XLootFrame.opt = opt
+	ULootFrame.opt = opt
 end
 
 function addon:OnEnable()
 	-- Register events
-	XLootFrame:RegisterEvent("LOOT_OPENED")
-	XLootFrame:RegisterEvent("LOOT_CLOSED")
-	XLootFrame:RegisterEvent("LOOT_SLOT_CLEARED")
-	XLootFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
-	XLootFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+	ULootFrame:RegisterEvent("LOOT_OPENED")
+	ULootFrame:RegisterEvent("LOOT_CLOSED")
+	ULootFrame:RegisterEvent("LOOT_SLOT_CLEARED")
+	ULootFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+	ULootFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
 	-- Disable default frame
 	LootFrame:UnregisterEvent("LOOT_OPENED")
@@ -198,15 +198,15 @@ function addon:OnEnable()
 	LootFrame:UnregisterEvent("LOOT_SLOT_CLEARED")
 
 	-- Register for escape close
-	table.insert(UISpecialFrames, "XLootFrame")
+	table.insert(UISpecialFrames, "ULootFrame")
 
 	-- Reattach master looter frame
 	MasterLooterFrame:SetScript('OnShow',
 	function(self)
-		if XLootFrame:IsVisible() then
-			MasterLooterFrame:SetFrameLevel(XLootFrame:GetFrameLevel()+2)
+		if ULootFrame:IsVisible() then
+			MasterLooterFrame:SetFrameLevel(ULootFrame:GetFrameLevel()+2)
 			MasterLooterFrame:ClearAllPoints()
-			MasterLooterFrame:SetPoint("BOTTOM",XLootFrame,"TOP")
+			MasterLooterFrame:SetPoint("BOTTOM",ULootFrame,"TOP")
 		end
 	end)
 end
@@ -226,20 +226,20 @@ local preview_currency = {
 }
 
 for i=1,#preview_loot do
-	XLootTooltip:SetItemByID(preview_loot[i][1])
+	ULootTooltip:SetItemByID(preview_loot[i][1])
 	GetItemInfo(preview_loot[i][1])
 end
 
 function addon:ApplyOptions(in_options)
-	opt, XLootFrame.opt = self.opt, self.opt
-	if XLootFrame.built then
-		XLootFrame:UpdateAppearance()
-		XLootFrame:Update(true)
+	opt, ULootFrame.opt = self.opt, self.opt
+	if ULootFrame.built then
+		ULootFrame:UpdateAppearance()
+		ULootFrame:Update(true)
 	end
-	XLootFrame:ParseAutolootList()
+	ULootFrame:ParseAutolootList()
 	-- Update preview frame in options
 	if in_options then
-		local Fake = XLootFakeFrame
+		local Fake = ULootFakeFrame
 		Fake.opt = opt
 		Fake:UpdateAppearance()
 		local slot, max_width, max_quality = 0, 0, 0
@@ -283,11 +283,11 @@ end
 
 function addon:OnOptionsShow(panel)
 	-- Create preview frame
-	local frame = XLootFakeFrame
+	local frame = ULootFakeFrame
 	if not frame then
-		frame = CreateFrame('Frame', 'XLootFakeFrame', panel, BackdropTemplateMixin and "BackdropTemplate")
+		frame = CreateFrame('Frame', 'ULootFakeFrame', panel, BackdropTemplateMixin and "BackdropTemplate")
 		frame.fake = true
-		frame.opt = XLootFrame.opt
+		frame.opt = ULootFrame.opt
 		self:BuildLootFrame(frame)
 		frame:SetPoint('TOPLEFT', panel, 'TOPRIGHT', 25, 25)
 		self:ApplyOptions(true)
@@ -296,7 +296,7 @@ function addon:OnOptionsShow(panel)
 end
 
 function addon:OnOptionsHide(panel)
-	XLootFakeFrame:Hide()
+	ULootFakeFrame:Hide()
 end
 
 local IsGroupState = {
@@ -370,7 +370,7 @@ do
 		LinkLoot(channel)
 	end
 
-	LinkDropdown = CreateFrame('Frame', 'XLootLinkDropdown')
+	LinkDropdown = CreateFrame('Frame', 'ULootLinkDropdown')
 	LinkDropdown.displayMode = 'MENU'
 	local channels = {
 		{ 'SAY', CHAT_MSG_SAY },
@@ -402,14 +402,14 @@ end
 -- Universal events
 local function OnDragStart()
 	if opt.frame_draggable then
-		XLootFrame:StartMoving()
+		ULootFrame:StartMoving()
 	end
 end
 
 local function OnDragStop()
-	XLootFrame:StopMovingOrSizing()
-	opt.frame_position_x = XLootFrame:GetLeft()
-	opt.frame_position_y = opt.frame_grow_upwards and XLootFrame:GetBottom() or XLootFrame:GetTop()
+	ULootFrame:StopMovingOrSizing()
+	opt.frame_position_x = ULootFrame:GetLeft()
+	opt.frame_position_y = opt.frame_grow_upwards and ULootFrame:GetBottom() or ULootFrame:GetTop()
 end
 
 -- Fontstring sizes
@@ -453,7 +453,7 @@ end
 local mouse_focus
 local BuildRow
 do
-	---@class XLootFrameRow: Button
+	---@class ULootFrameRow: Button
 	---@field text_name FontString
 	---@field text_info FontString
 	---@field text_quantity FontString
@@ -466,7 +466,7 @@ do
 	---@field texture_bang Texture
 	---@field i integer
 	---@field owner Frame
-	local RowPrototype = XLoot.NewPrototype()
+	local RowPrototype = ULoot.NewPrototype()
 	-- Text helpers
 	local function smalltext(text)
 		text:SetDrawLayer'OVERLAY'
@@ -543,7 +543,7 @@ do
 	end
 
 	function RowPrototype:OnClick(button)
-		if not XLootButtonOnClick(self, button) then
+		if not ULootButtonOnClick(self, button) then
 			if IsModifiedClick() then
 				HandleModifiedItemClick(GetLootSlotLink(self.slot))
 			elseif LootButton_OnClick then
@@ -778,7 +778,7 @@ do
 
 		-- Apply prototype after skin to override method
 		RowPrototype:New(row)
-		---@cast row XLootFrameRow
+		---@cast row ULootFrameRow
 
 		-- Create fontstrings
 		local name = row:CreateFontString(not fake and frame_name..'Text' or nil)
@@ -859,7 +859,7 @@ end
 
 -- Build frame
 do
-	local FramePrototype = XLoot.NewPrototype()
+	local FramePrototype = ULoot.NewPrototype()
 	-- Frame snapping
 	function FramePrototype:SnapToCursor()
 		local x, y = GetCursorPosition()
@@ -1037,7 +1037,7 @@ do
 		f:EnableMouse(1)
 
 		-- Set up frame skins
-		XLoot:MakeSkinner(f, {
+		ULoot:MakeSkinner(f, {
 			item = {
 				backdrop = false
 			},
@@ -1121,7 +1121,7 @@ end
 
 -- Main loot handler
 local auto, auto_items = {}, {}
-function XLootFrame:ParseAutolootList()
+function ULootFrame:ParseAutolootList()
 	wipe(auto_items)
 	for item in opt.autoloot_item_list:gmatch("%s*([^,]+)%s*") do
 		auto_items[item] = true
@@ -1153,14 +1153,14 @@ local function clear(slot)
 end
 
 local function BoPRefresh()
-	for i, row in pairs(XLootFrame.rows) do
+	for i, row in pairs(ULootFrame.rows) do
 		clear(row)
 	end
-	XLootFrame:Update(false, true)
+	ULootFrame:Update(false, true)
 end
 
-local _bag_slots, GetItemBindType = {}, XLoot.GetItemBindType
-function XLootFrame:Update(no_snap, is_refresh)
+local _bag_slots, GetItemBindType = {}, ULoot.GetItemBindType
+function ULootFrame:Update(no_snap, is_refresh)
 	local numloot = GetNumLootItems()
 	if numloot == 0 then return nil end
 	local max = math.max
@@ -1320,13 +1320,13 @@ function XLootFrame:Update(no_snap, is_refresh)
 end
 
 function addon:LOOT_CLOSED()
-	if type(XLootFrame.rows) == 'table' then
-		for i, row in pairs(XLootFrame.rows) do
+	if type(ULootFrame.rows) == 'table' then
+		for i, row in pairs(ULootFrame.rows) do
 			clear(row)
 		end
-		wipe(XLootFrame.slots)
+		wipe(ULootFrame.slots)
 	end
-	XLootFrame:Hide()
+	ULootFrame:Hide()
 	StaticPopup_Hide('LOOT_BIND')
 	if UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
 		CloseDropDownMenus()
@@ -1335,10 +1335,10 @@ end
 
 function addon:LOOT_OPENED()
 	if GetNumLootItems() > 0 then
-		if not XLootFrame:IsShown() and IsFishingLoot() then
+		if not ULootFrame:IsShown() and IsFishingLoot() then
 			PlaySound(SOUNDKIT.FISHING_REEL_IN)
 		end
-		XLootFrame:Update()
+		ULootFrame:Update()
 	else
 		PlaySound(SOUNDKIT.LOOT_WINDOW_OPEN_EMPTY)
 		CloseLoot()
@@ -1346,7 +1346,7 @@ function addon:LOOT_OPENED()
 end
 
 function addon:LOOT_SLOT_CLEARED(slot)
-	local slots = XLootFrame.slots
+	local slots = ULootFrame.slots
 	-- Apparently auto-looting addons like EasyLoot will cause strange issues
 	if slots == nil then
 		return
@@ -1354,15 +1354,15 @@ function addon:LOOT_SLOT_CLEARED(slot)
 	for id, row in ipairs(slots) do
 		if row.slot == slot then
 			clear(row)
-			if XLootFrame.opt.loot_collapse then
+			if ULootFrame.opt.loot_collapse then
 				local prev, next = slots[id-1], slots[id+1]
 				if prev and next then
-					next:SetPoint('TOP', prev, 'BOTTOM', nil, XLootFrame.skin.row_offset)
+					next:SetPoint('TOP', prev, 'BOTTOM', nil, ULootFrame.skin.row_offset)
 				elseif next then
 					next:SetPoint('TOP', 0, -opt.loot_padding_top)
 				end
 				table.remove(slots, id)
-				XLootFrame:UpdateHeight()
+				ULootFrame:UpdateHeight()
 			end
 		end
 	end
@@ -1383,8 +1383,8 @@ local function option_handler(msg)
 	--local what, arg, data = string.split(' ', msg, 3)
 	--local what, arg, data = msg:match'^(%w+)%s?([A-Za-z\_]*)%s?(.*)$'
 end
--- SLASH_XLOOT1 = '/xloot'
--- SlashCmdList['XLOOT'] = option_handler
+-- SLASH_ULOOT1 = '/uloot'
+-- SlashCmdList['ULOOT'] = option_handler
 
 
 --[[

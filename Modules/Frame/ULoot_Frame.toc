@@ -2,13 +2,12 @@
 ## Interface-Classic: 11403
 ## Interface-BCC: 20502
 ## Interface-WoTLK: 30401
-## Title: XLoot Options
-## Notes: Configuration interface for XLoot
+## Title: ULoot Frame
+## Notes: A customizable, skinnable loot frame.
 ## Version: @project-version@
-## Author: Xuerian
+## Author: LiQiuDgg
 ## X-Category: Inventory
 
-## Dependencies: XLoot
-## LoadOnDemand: 1
+## Dependencies: ULoot
 
 load.xml
