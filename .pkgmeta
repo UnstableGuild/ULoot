@@ -1,39 +1,39 @@
-﻿package-as: ULoot
+package-as: ULoot
 
 externals:
-	Libs/LibStub:
-		url: svn://svn.wowace.com/wow/libstub/mainline/trunk
-		tag: latest
-	Libs/CallbackHandler-1.0:
-		url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
-		tag: latest
-	Libs/AceDB-3.0:
-		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
-		tag: latest
-	Libs/AceAddon-3.0:
-		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
-		tag: latest
-	Modules/Options/Libs/AceGUI-3.0:
-		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
-		tag: latest
-	Modules/Options/Libs/AceConfig-3.0:
-		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
-		tag: latest
-	Modules/Options/Libs/AceDBOptions-3.0:
-		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
-		tag: latest
+  Libs/LibStub:
+    url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    tag: latest
+  Libs/CallbackHandler-1.0:
+    url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
+    tag: latest
+  Libs/AceDB-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
+    tag: latest
+  Libs/AceAddon-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
+    tag: latest
+  Modules/Options/Libs/AceGUI-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
+    tag: latest
+  Modules/Options/Libs/AceConfig-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
+    tag: latest
+  Modules/Options/Libs/AceDBOptions-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
+    tag: latest
 
 ignore:
-	- .pkgmeta
-	- .github
-	- .gitignore
-	- .pre-commit-config.yaml
-	- README.md
-	- CLAUDE.md
-	- .claude
+  - .pkgmeta
+  - .github
+  - .gitignore
+  - .pre-commit-config.yaml
+  - README.md
+  - CLAUDE.md
+  - .claude
 
 move-folders:
-	ULoot/Modules/Frame: ULoot_Frame
-	ULoot/Modules/Group: ULoot_Group
-	ULoot/Modules/Monitor: ULoot_Monitor
-	ULoot/Modules/Options: ULoot_Options
+  ULoot/Modules/Frame: ULoot_Frame
+  ULoot/Modules/Group: ULoot_Group
+  ULoot/Modules/Monitor: ULoot_Monitor
+  ULoot/Modules/Options: ULoot_Options
