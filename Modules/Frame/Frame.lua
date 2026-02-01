@@ -45,7 +45,7 @@ ULootFrame.addon = addon
 local ULootFrame = ULootFrame
 
 -- Grab locals
-local mouse_focus, opt
+local opt
 
 local LOOT_SLOT_NONE = Enum.LootSlotType.None
 local LOOT_SLOT_ITEM = Enum.LootSlotType.Item
@@ -301,6 +301,7 @@ local LinkLoot
 do
 	local output = { }
 	function LinkLoot(channel, isExtraChannel)
+		wipe(output)
 		local output, key, buffer = output, 1
 		local sf = string.format
 
@@ -496,14 +497,14 @@ do
 	end
 
 	function RowPrototype:OnEnter()
-		self:HighlightEnter(self)
+		self:HighlightEnter()
 		mouse_focus = self
 		self:ShowTooltip()
 	end
 
 	function RowPrototype:OnLeave()
 		mouse_focus = nil
-		self:HighlightLeave(self)
+		self:HighlightLeave()
 		GameTooltip:Hide()
 		ResetCursor()
 	end
@@ -1184,7 +1185,7 @@ function ULootFrame:Update(no_snap, is_refresh)
 					slotData.slotType = slotType
 					slotData.quantity = quantity
 					slotData.locked = locked
-					slotData.questItem = isQuestItem
+					slotData.isQuestItem = isQuestItem
 					slotData.questID = questID
 					slotData.isActive = isActive
 				end
@@ -1333,7 +1334,7 @@ function addon:LOOT_SLOT_CLEARED(slot)
 			if ULootFrame.opt.loot_collapse then
 				local prev, next = slots[id-1], slots[id+1]
 				if prev and next then
-					next:SetPoint('TOP', prev, 'BOTTOM', nil, ULootFrame.skin.row_offset)
+					next:SetPoint('TOP', prev, 'BOTTOM', 0, ULootFrame.skin.row_offset)
 				elseif next then
 					next:SetPoint('TOP', 0, -opt.loot_padding_top)
 				end
@@ -1346,7 +1347,7 @@ end
 
 -- Show compare tooltip when shift pressed
 -- Without using OnUpdate for all frames
-function addon:MODIFIER_STATE_CHANGED(self, modifier, state)
+function addon:MODIFIER_STATE_CHANGED()
 	if (GetNumLootItems() ~= 0) and mouse_focus and MouseIsOver(mouse_focus) then
 		mouse_focus:ShowTooltip()
 	end
@@ -1357,17 +1358,6 @@ function addon:LOOT_SLOT_CHANGED(slot)
 		ULootFrame:Update(true)
 	end
 end
-
-local function option_handler(msg)
-	if not addon:SlashHandler(msg) then
-		addon:ShowOptions()
-	end
-	--local what, arg, data = string.split(' ', msg, 3)
-	--local what, arg, data = msg:match'^(%w+)%s?([A-Za-z\_]*)%s?(.*)$'
-end
--- SLASH_ULOOT1 = '/uloot'
--- SlashCmdList['ULOOT'] = option_handler
-
 
 --[[
 Notes:

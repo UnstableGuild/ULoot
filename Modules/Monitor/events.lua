@@ -150,7 +150,7 @@ event("START_LOOT_ROLL", function()
 -- 2 second delay needed?
 local max = math.max
 event("CANCEL_LOOT_ROLL", function()
-	--activerolls = max(0, activerolls - 1)
+	activerolls = max(0, activerolls - 1)
 end)
 
 local player = UnitName('player')

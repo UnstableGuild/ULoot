@@ -170,7 +170,7 @@ do
 	-- Frame methods
 	local alphaworks = false
 	local function SetBorderColor(self, r, g, b, a)
-		for i, x in pairs(self._skin_borders) do
+		for i, x in ipairs(self._skin_borders) do
 			x:SetVertexColor(r, g, b, a or 1)
 		end
 	end
@@ -231,7 +231,7 @@ do
 	end
 
 	-- Highlights
-	local function ShowHighlight(self, status)
+	local function ShowHighlight(self)
 		for _, tex in ipairs(self._highlights) do
 			tex:Show()
 		end

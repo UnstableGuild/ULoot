@@ -53,7 +53,11 @@ end
 function ULoot:ShowOptionPanel(module)
 	if not ULootOptions then
 		C_AddOns.EnableAddOn("ULoot_Options")
-		C_AddOns.LoadAddOn("ULoot_Options")
+		local loaded, reason = C_AddOns.LoadAddOn("ULoot_Options")
+		if not loaded or not ULootOptions then
+			print("|cffff4422ULoot|r: Failed to load options - " .. tostring(reason))
+			return
+		end
 	end
 	ULootOptions:OpenPanel(module)
 end
@@ -103,7 +107,7 @@ ULoot:SetDefaultModulePrototype(ULootModule)
 -- Prototype helper
 
 function ULoot.Prototype_New(self, new)
-	local new = new or {}
+	new = new or {}
 	for k,v in pairs(self) do
 		if k ~= "New" and k ~= "_New" then
 			if new[k] ~= nil then
@@ -134,9 +138,6 @@ function ULoot:OnInitialize()
 end
 
 function ULoot:OnEnable()
-	-- Create option stub
-	C_AddOns.EnableAddOn("ULoot_Options")
-	C_AddOns.LoadAddOn("ULoot_Options")
 	self:SetSlashCommand("uloot", function() self:ShowOptionPanel(self) end)
 end
 

@@ -165,7 +165,7 @@ function addon:OnEnable()
 	end
 
 	-- Find and show active rolls
-	if IsInGroup() then
+	if IsInGroup() and GetActiveLootRollIDs then
 		local activeIDs = GetActiveLootRollIDs()
 		for _, rollID in ipairs(activeIDs) do
 			local time = GetLootRollTimeLeft(rollID)
@@ -385,8 +385,10 @@ function addon.AlertFrameHook(alert)
 				alert.Label:ClearAllPoints()
 				alert.Label:SetPoint('TOPLEFT', alert.Icon, 'TOPRIGHT', 15, -2)
 			end
-			name:ClearAllPoints()
-			name:SetPoint('LEFT', alert.Icon, 'RIGHT', 10, -6)
+			if name then
+				name:ClearAllPoints()
+				name:SetPoint('LEFT', alert.Icon, 'RIGHT', 10, -6)
+			end
 		end
 		if opt.alert_skin then
 			local overlay = CreateFrame('Frame', nil, alert, "BackdropTemplate")
@@ -412,10 +414,10 @@ function addon.AlertFrameHook(alert)
 
 		alert_frames[alert] = elements
 	end
-	alert.Background:SetShown(opt.alert_background)
-	alert.IconBorder:SetShown(opt.alert_icon_frame)
-	alert.BaseQualityBorder:SetShown(opt.alert_icon_frame)
-	alert.UpgradeQualityBorder:SetShown(opt.alert_icon_frame)
+	if alert.Background then alert.Background:SetShown(opt.alert_background) end
+	if alert.IconBorder then alert.IconBorder:SetShown(opt.alert_icon_frame) end
+	if alert.BaseQualityBorder then alert.BaseQualityBorder:SetShown(opt.alert_icon_frame) end
+	if alert.UpgradeQualityBorder then alert.UpgradeQualityBorder:SetShown(opt.alert_icon_frame) end
 	alert:SetAlpha(opt.alert_alpha)
 	alert:SetScale(opt.alert_scale)
 
@@ -871,9 +873,12 @@ function addon:SkinUpdate()
 		bar:SetStatusBarTexture(skin.bar_texture)
 		local link = bar.parent.link
 		if link then
-			local r, g, b = C_Item.GetItemQualityColor(select(3, GetItemInfo(link)))
-			bar.parent.overlay:SetBorderColor(r, g, b)
-			bar.parent.icon_frame:SetBorderColor(r, g, b)
+			local _, _, rarity = GetItemInfo(link)
+			if rarity then
+				local r, g, b = C_Item.GetItemQualityColor(rarity)
+				bar.parent.overlay:SetBorderColor(r, g, b)
+				bar.parent.icon_frame:SetBorderColor(r, g, b)
+			end
 		end
 	end
 

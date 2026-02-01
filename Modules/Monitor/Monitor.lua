@@ -110,7 +110,8 @@ function events.item(player, link, num)
 			print(name and "Quality is not a number" or "Name is nil")
 			return false
 		end
-		if (player == me and opt.threshold_own or opt.threshold_other) > quality then
+		local threshold = (player == me) and opt.threshold_own or opt.threshold_other
+		if threshold > quality then
 			return -- Doesn't meet threshold requirements
 		end
 		local r, g, b = C_Item.GetItemQualityColor(quality)
@@ -169,7 +170,7 @@ function addon.LOOT_EVENT(event, pattern, ...)
 end
 
 local mouse_focus
-function addon:MODIFIER_STATE_CHANGED(self, modifier, state)
+function addon:MODIFIER_STATE_CHANGED()
 	if mouse_focus and MouseIsOver(mouse_focus) then
 		mouse_focus:ShowTooltip()
 	end
