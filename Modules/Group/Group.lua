@@ -8,8 +8,8 @@ local rolls = {}
 local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS
 local GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string_format
 	= GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string.format
-local HistoryGetItem, HistoryGetPlayerInfo, HistoryGetNumItems
-	= C_LootHistory.GetItem, C_LootHistory.GetPlayerInfo, C_LootHistory.GetNumItems
+-- C_LootHistory.GetItem/GetPlayerInfo/GetNumItems removed in 12.0
+-- TODO: Reimplement via C_LootHistory.GetAllEncounterInfos/GetSortedInfoForDrop
 local CanEquipItem, IsItemUpgrade, FancyPlayerName = ULoot.CanEquipItem, ULoot.IsItemUpgrade, ULoot.FancyPlayerName
 local RollFramePrototype
 
@@ -94,25 +94,14 @@ function addon:OnInitialize()
 	opt = self.db.profile
 	ULootGroup.opt = opt
 	-- Extra slash command
-	ULoot:SetSlashCommand("xlg", self.SlashHandler)
+	ULoot:SetSlashCommand("ulg", self.SlashHandler)
 end
 
 function addon:OnEnable()
-	if BUILD_NUMBER >= 100000 then
-		print("ULoot Group does not yet work on this version and will not be loaded")
-		return
-	end
 	-- Register events
 	eframe:RegisterEvent('START_LOOT_ROLL')
 	eframe:RegisterEvent('MODIFIER_STATE_CHANGED')
-
-	-- if BUILD_HAS_TRANSMOG_GREED or C_Item then
-	-- 	eframe:RegisterEvent('LOOT_HISTORY_UPDATE_DROP')
-	-- else
-		eframe:RegisterEvent('LOOT_HISTORY_ROLL_CHANGED')
-		eframe:RegisterEvent('LOOT_HISTORY_ROLL_COMPLETE')
-		eframe:RegisterEvent('LOOT_ROLLS_COMPLETE')
-	-- end
+	eframe:RegisterEvent('LOOT_ROLLS_COMPLETE')
 
 	-- Disable default frame
 	UIParent:UnregisterEvent("START_LOOT_ROLL")
@@ -181,11 +170,12 @@ function addon:OnEnable()
 	end
 
 	-- Find and show active rolls
-	if IsInGroup() and (GetLootMethod() == 'group' or GetLootMethod() == 'needbeforegreed') then
-		for i=1,300 do
-			local time = GetLootRollTimeLeft(i)
-			if time > 0 and time <  300000 then
-				self:START_LOOT_ROLL(i, time, true)
+	if IsInGroup() then
+		local activeIDs = GetActiveLootRollIDs and GetActiveLootRollIDs() or {}
+		for _, rollID in ipairs(activeIDs) do
+			local time = GetLootRollTimeLeft(rollID)
+			if time > 0 and time < 300000 then
+				self:START_LOOT_ROLL(rollID, time, true)
 			end
 		end
 	end
@@ -204,10 +194,10 @@ local type_strings = {
 	disenchant = ROLL_DISENCHANT,
 	pass = PASS
 }
-local rtypes = { [0] = 'pass', 'need', 'greed', 'disenchant' } -- Tekkub. Writing smaller addons than me since ever.
+local rtypes = { [0] = 'pass', 'need', 'greed', 'disenchant', 'transmog' }
 
 function addon:START_LOOT_ROLL(id, length, uid, ongoing)
-	local icon, name, count, quality, bop, need, greed, de, reason_need, reason_greed, reason_de, de_skill = GetLootRollItemInfo(id)
+	local icon, name, count, quality, bop, need, greed, de, reason_need, reason_greed, reason_de, de_skill, canTransmog = GetLootRollItemInfo(id)
 	-- LootFrame.lua includes this sanity check
 	if name == nil then
 		print('ULoot Group: Ignoring START_LOOT_ROLL with no name')
@@ -231,8 +221,12 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 
 	frame.need:Show()
 	frame.greed:Show()
-	if BUILD_HAS_DISENCHANT then
-		frame.disenchant:Show()
+	frame.disenchant:Show()
+	if canTransmog then
+		frame.transmog:Show()
+		frame.transmog:Toggle(true)
+	else
+		frame.transmog:Hide()
 	end
 	frame.pass:Show()
 	frame.text_status:Hide()
@@ -259,6 +253,7 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 	frame.greed:SetText()
 	frame.pass:SetText()
 	frame.disenchant:SetText()
+	frame.transmog:SetText()
 
 	frame.need.reason = reason_need ~= 0 and reason_need or nil
 	frame.greed.reason = reason_greed ~= 0 and reason_greed or nil
@@ -296,142 +291,22 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 	return frame
 end
 
-local tidx = { [0] = 1, [3] = 2, [2] = 2, [1] = 3 }
-function addon:LOOT_HISTORY_ROLL_COMPLETE()
-	-- Locate history item
-	local hid, frame, rollid, players, done, _ = 1, nil, nil, nil, nil, nil
-	while true do
-		rollid, _, players, done = HistoryGetItem(hid)
-		if not rollid or (rolls[rollid] and rolls[rollid].over) then
-			return
-		elseif done and rolls[rollid] then
-			frame = rolls[rollid]
-			break
-		end
-		hid = hid+1
-	end
-
-	-- Active frame found
-	frame.over = true
-	local top_type, top_roll, top_pid, top_is_me = 0, 0, nil, nil
-	for j=1, players do
-		local name, class, rtype, roll, is_winner, is_me = HistoryGetPlayerInfo(hid, j)
-		-- roll = roll and roll or true
-		if is_winner then
-			top_pid = j
-			top_is_me = is_me
-			break
-		elseif rtype ~= 0 and tidx[rtype] >= tidx[top_type] and (not roll or roll > top_roll) then
-			top_type = rtype
-			top_roll = roll
-			top_pid = j
-		end
-	end
-
-	-- Winner or lead
-	if top_pid then
-		local name, class = HistoryGetPlayerInfo(hid, top_pid)
-		local player, r, g, b = FancyPlayerName(name, class, opt)
-		if opt.win_icon then
-			if top_type == 'need' then
-				player = [[|TInterface\Buttons\UI-GroupLoot-Dice-Up:16:16:-1:-1|t]]..player
-			elseif top_type == 'greed' then
-				player = [[|TInterface\Buttons\UI-GroupLoot-Coin-Up:16:16:-1:-2|t]]..player
-			elseif top_type == 'disenchant' then
-				player = [[|TInterface\Buttons\UI-GroupLoot-DE-Up:16:16:-1:-1|t]]..player
-			end
-		end
-		frame.text_status:SetText(player)
-		frame.text_status:SetTextColor(r, g, b)
-		frame.bar.expires = GetTime()
-		anchor:Expire(frame, top_is_me and opt.expire_won or opt.expire_lost)
-	else
-	-- No winner/lead
-		frame.text_status:SetText(string_format('%s: %s', PASS, ALL))
-		frame.text_status:SetTextColor(.7, .7, .7)
-		frame.bar.expires = GetTime()
-		anchor:Expire(frame, opt.expire_lost)
-	end
-	-- Refresh tooltip
-	if frame and mouse_focus == frame then
-		frame:OnEnter()
-	end
-end
-addon.LOOT_ROLLS_COMPLETE = addon.LOOT_HISTORY_ROLL_COMPLETE
-
-local rweights = { need = 3, greed = 2, disenchant = 2, pass = 1 }
-function addon:LOOT_HISTORY_ROLL_CHANGED(hid, pid)
-	-- Acquire roll information and frame
-	local rollid, link, players, done = HistoryGetItem(hid)
-	local frame = rolls[rollid]
-	if not frame or frame.rollid ~= rollid or not frame:IsShown() then
-		return nil
-	end
-
-	-- Acquire player information
-	local name, class, rtypeid, roll, winner, is_me = HistoryGetPlayerInfo(hid, pid)
-	local rtype = rtypes[rtypeid]
-
-	-- Transition or expire frame on player roll
-	if is_me then
-		if 	opt.track_all
-			or (opt.track_player_roll and rtype ~= 'pass')
-			or (opt.track_by_threshold and frame.quality >= opt.track_threshold) then
+function addon:LOOT_ROLLS_COMPLETE(lootHandle)
+	-- Mark all active roll frames as complete
+	for rollID, frame in pairs(rolls) do
+		if not frame.over then
+			frame.over = true
 			frame.need:Hide()
 			frame.greed:Hide()
 			frame.disenchant:Hide()
+			frame.transmog:Hide()
 			frame.pass:Hide()
+			frame.text_status:SetText("Complete")
+			frame.text_status:SetTextColor(.7, .7, .7)
 			frame.text_status:Show()
-			frame.have_rolled = true
-		else
-			anchor:Pop(frame)
-			return
+			frame.bar.expires = GetTime()
+			anchor:Expire(frame, opt.expire_lost)
 		end
-	end
-
-	-- Update post-player-roll status text
-	if frame.have_rolled then
-		local rtype = rtype == 'disenchant' and 'greed' or rtype
-		-- Roll of leading type or higher
-		if rweights[rtype] >= rweights[frame.lead_type] then
-			frame.lead_type = rtype
-			local bracket, mtype = 0, nil
-			for i=1, players do
-				local _, _, ptype, _, _, is_me = HistoryGetPlayerInfo(hid, i)
-				local ptype = rtypes[ptype == 3 and 2 or ptype]
-				if ptype == rtype then
-					bracket = bracket + 1
-				end
-				if is_me then
-					mtype = ptype
-				end
-			end
-
-			local r, g, b = .7, .7, .7
-			if mtype == rtype then
-				r, g, b = .2, 1, .1
-			elseif mtype and mtype ~= 0 then
-				r, g, b = 1, .2, .1
-			end
-			frame.text_status:SetText(string_format('%s: %s', type_strings[rtype], bracket))
-			frame.text_status:SetTextColor(r, g, b)
-		end
-
-	-- Update roll button counters
-	else
-		local bracket = 0
-		for i=1, players do
-			local _, _, thistype = HistoryGetPlayerInfo(hid, i)
-			if thistype == rtypeid then
-				bracket = bracket + 1
-			end
-		end
-		frame[rtype]:SetText(bracket)
-	end
-
-	-- Refresh tooltip
-	if frame and mouse_focus == frame then
-		frame:OnEnter()
 	end
 end
 
@@ -547,35 +422,6 @@ end
 
 do
 	local sf = string.format
-	-- Add a specific roll type to the tooltip
-	local function RollLines(list, hid)
-		for _,pid in pairs(list) do
-			local name, class, rtype, roll, is_winner, is_me = HistoryGetPlayerInfo(hid, pid)
-			-- TODO- ACCOUNT FOR MISSING PLAYERS BETTER
-			if not name then return nil end
-			local text, r, g, b, color = FancyPlayerName(name, class, opt)
-			if roll ~= nil then
-				if is_winner then
-					color = '44ff22'
-				elseif is_me then
-					color = 'ff2244'
-				else
-					color = 'CCCCCC'
-				end
-				GameTooltip:AddLine(sf('   |cff%s%s|r  %s', color, roll, text), r, g, b)
-			else
-				GameTooltip:AddLine('   '..text, r, g, b)
-			end
-		end
-	end
-
-	-- Add roll status or summary to tooltip
-	local tneed, tgreed, tpass, trolls, tnone, table_sort
-		= {}, {}, {}, {}, {}, table.sort
-	local function rsort(a, b)
-		a, b = trolls[a] or 0, trolls[b] or 0
-		return a > b and true or false
-	end
 
 	local function AddIneligibleReason(button, r, g, b)
 		if button.reason and _G["LOOT_ROLL_INELIGIBLE_REASON"..button.reason] then
@@ -584,71 +430,10 @@ do
 		end
 	end
 
+	-- Simplified: just show item tooltip, no per-player roll breakdown
+	-- TODO: Implement detailed tracking via C_LootHistory.GetSortedInfoForDrop()
 	local function AddTooltipLines(self, show_all, show)
-		-- Locate history item
-		local rollid, hid = self.rollid, 1
-		local hrollid, link, players, done
-		while true do
-			hrollid, link, players, done = HistoryGetItem(hid)
-			if not hrollid then
-				return
-			elseif hrollid == rollid then
-				break
-			end
-			hid = hid+1
-		end
-
-		-- Generate player lists
-		local tneed, tgreed, tpass, tnone, trolls
-			= wipe(tneed), wipe(tgreed), wipe(tpass), wipe(tnone), wipe(trolls)
-		for pid=1, players do
-			local _, _, rtype, roll = HistoryGetPlayerInfo(hid, pid)
-			local t
-			if rtype then
-				if rtype == 0 then
-					t = tpass
-				elseif rtype == 1 then
-					t = tneed
-				elseif rtype == 2 or rtype == 3 then
-					t = tgreed
-				end
-				trolls[pid] = roll
-			else
-				t = tnone
-			end
-			if t then
-				t[#t+1] = pid
-			end
-		end
-
-		table_sort(tneed, rsort)
-		table_sort(tgreed, rsort)
-		table_sort(tpass, rsort)
-
-		-- Generate tooltip
-		if show_all then
-			GameTooltip:AddLine('.', 0, 0, 0)
-		end
-		if #tneed ~= 0 and (show_all or show == 1) then
-			GameTooltip:AddLine(NEED, .2, 1, .1)
-			RollLines(tneed, hid)
-		end
-		if #tgreed ~= 0 and (show_all or (show == 2 or show == 3)) then
-			GameTooltip:AddLine(GREED, .1, .2, 1)
-			RollLines(tgreed, hid)
-		end
-		if #tpass ~= 0 and (show_all or show == 0) then
-			GameTooltip:AddLine(PASS, .7, .7, .7)
-			RollLines(tpass, hid)
-		end
-		if show_all and opt.show_undecided then
-			GameTooltip:AddLine(L.undecided, .7, .3, .2)
-			RollLines(tnone, hid)
-		end
-
-		-- Force tooltip to refresh
-		GameTooltip:Show()
-		return true
+		return false
 	end
 
 	---------------------------------------------------------------------------
@@ -909,13 +694,12 @@ do
 		local n = RollButtonPrototype:New(frame, 1, NEED, 'Dice', icon_frame, 3, -1, {.2, 1, .1})
 		local g = RollButtonPrototype:New(frame, 2, GREED, 'Coin', n, 0, -2, {.1, .2, 1})
 		local d = RollButtonPrototype:New(frame, 3, ROLL_DISENCHANT, 'DE', g, 0, 2, {.1, .2, 1})
-		local p_to = d
-		if not BUILD_HAS_DISENCHANT then
-			p_to = g
-			d:Hide()
-		end
-		local p = RollButtonPrototype:New(frame, 0, PASS, 'Pass', p_to, 0, 2, {.7, .7, .7})
-		frame.need, frame.greed, frame.disenchant, frame.pass = n, g, d, p
+		-- Transmog button uses Coin texture tinted purple to distinguish from greed
+		local t = RollButtonPrototype:New(frame, 4, TRANSMOGRIFY or "Transmog", 'Coin', d, 0, -2, {.8, .2, .8})
+		t:GetNormalTexture():SetVertexColor(.8, .4, .8)
+		t:Hide() -- Hidden by default, shown when canTransmog
+		local p = RollButtonPrototype:New(frame, 0, PASS, 'Pass', t, 0, 2, {.7, .7, .7})
+		frame.need, frame.greed, frame.disenchant, frame.transmog, frame.pass = n, g, d, t, p
 
 		-- Roll status text
 		local status = frame:CreateFontString(nil, 'OVERLAY')
@@ -946,6 +730,7 @@ do
 		self.need:ApplyOptions()
 		self.greed:ApplyOptions()
 		self.disenchant:ApplyOptions()
+		self.transmog:ApplyOptions()
 		self.pass:ApplyOptions()
 
 		self.text_ilvl:SetFont(opt.font, 8, 'OUTLINE')
@@ -1022,113 +807,44 @@ local init, tests, links, StartFakeRoll = false, {}, {}, nil
 
 local deframe = CreateFrame('Frame')
 
--- Currently only debugs one roll at a time.
+-- Simplified test - creates fake roll frames without per-player tracking
 function ULootGroup.TestSettings()
-	local FakeHistory
-	local schedule = {}
-	local type_index = { 'need', 'greed', 'disenchant', [0] = 'pass' }
 	if not init then
 		print(L.debug_warning)
 		init = true
-		local tick = 0
-		deframe:SetScript('OnUpdate', function(self, elapsed)
-			tick = tick + elapsed
-			if tick > 1 then
-				tick = 0
-				local time = GetTime()
-				for k,v in pairs(schedule) do
-					if v[1] < time then
-						local e = v
-						schedule[k] = nil
-						e[2]()
-						e[3](unpack(e[4]))
-					end
-				end
-			end
-		end)
 
-		FakeHistory = {
-			rolls = {},
-			links = {},
-			items = {}
-		}
-
-		local function after(seconds, func, target, ...)
-			table.insert(schedule, { GetTime() + seconds, func, target, {...} } )
-		end
-
-		local function changed(...)
-			addon:LOOT_HISTORY_ROLL_CHANGED(...)
-		end
+		local fakeRolls = {}
 
 		function GetLootRollItemInfo(id)
-			return unpack(FakeHistory.rolls[id])
+			return unpack(fakeRolls[id].info)
 		end
 
 		function GetLootRollItemLink(id)
-			return FakeHistory.links[id]
+			return fakeRolls[id].link
 		end
 
 		function GetLootRollTimeLeft()
 			return 1
 		end
 
-		function RollOnLoot(rollid, rtypeid)
-			FakeHistory.items[1].players[1][3] = rtypeid
-			changed(1, 1)
-		end
-
-		function UnitGroupRolesAssigned(player)
-			local s = math.random(1, 3)
-			if s == 1 then
-				return "HEALER"
-			elseif s == 2 then
-				return "DAMAGER"
-			end
-			return "TANK"
-		end
-
-		function HistoryGetItem(hid)
-			return unpack(FakeHistory.items[hid].item)
-		end
-
-		function HistoryGetPlayerInfo(hid, pid)
-			return unpack(FakeHistory.items[hid].players[pid])
-		end
+		function RollOnLoot() end
 
 		function StartFakeRoll()
-			local fake = {}
-
 			local item = preview_loot[random(1, #preview_loot)]
 			local iname, ilink, iquality, _, _, _, _, _, _, itex = GetItemInfo(item[1])
-
-			local rollid = #FakeHistory.rolls + 1
-
-			fake.item = { rollid, ilink, 5, false, nil, false }
-			fake.players = {
-				{ me, select(2, UnitClass('player')), nil, nil, false, true },
-				{ 'Player1', 'MAGE', nil, nil, false, false },
-				{ 'Player2', 'PRIEST', nil, nil, false, false },
-				{ 'Player3', 'WARRIOR', nil, nil, false, false },
-				{ 'Player4', 'SHAMAN', nil, nil, false, false }
+			local rollid = #fakeRolls + 1
+			-- icon, name, count, quality, bop, need, greed, de, rNeed, rGreed, rDE, deSkill, canTransmog
+			fakeRolls[rollid] = {
+				info = { itex, iname, 1, iquality, select(2, unpack(item)), true },
+				link = ilink
 			}
-			FakeHistory.rolls[rollid] = { itex, iname, 1, iquality, select(2, unpack(item)) }
-			FakeHistory.links[rollid] = ilink
-
-			table.insert(FakeHistory.items, 1, fake)
-
 			addon:START_LOOT_ROLL(rollid, random(20000, 40000), true)
-			after(5, function() fake.players[2][3] = 0 end, changed, 1, 2)
-			after(7, function() fake.players[3][3] = 2 end, changed, 1, 3)
-			after(9, function() fake.players[4][3] = 3 end, changed, 1, 4)
-			after(11, function() fake.players[5][3] = 1 end, changed, 1, 5)
 		end
-
 	end
 	StartFakeRoll()
 end
 
-ULoot:SetSlashCommand('xlgd', ULootGroup.TestSettings)
+ULoot:SetSlashCommand('ulgd', ULootGroup.TestSettings)
 
 --@do-not-package@
 local function alert()
@@ -1138,7 +854,7 @@ local function alert()
 	MoneyWonAlertFrame_ShowAlert(random(1, 100000))
 end
 
-ULoot:SetSlashCommand('xlga', alert)
+ULoot:SetSlashCommand('ulga', alert)
 
 local AC = LibStub('AceConsole-2.0', true)
 if AC then print = function(...) AC:PrintLiteral(...) end end
