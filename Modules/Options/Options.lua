@@ -705,8 +705,9 @@ function addon:Init()
 		init = true
 
 		AceConfigRegistry:RegisterOptionsTable("ULoot", self.config)
-		local panel = AceConfigDialog:AddToBlizOptions("ULoot")
+		local panel, categoryID = AceConfigDialog:AddToBlizOptions("ULoot")
 		ULoot.option_panel = panel
+		ULoot.option_category_id = categoryID
 		panel.default = PanelDefault
 
 		local _OnShow = panel:GetScript("OnShow")
@@ -733,7 +734,7 @@ end
 
 function addon:OpenPanel(module)
 	addon:Init()
-	Settings.OpenToCategory("ULoot")
+	Settings.OpenToCategory(ULoot.option_category_id)
 end
 
 --@do-not-package@
