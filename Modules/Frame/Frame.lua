@@ -191,24 +191,14 @@ function addon:OnEnable()
 	ULootFrame:RegisterEvent("LOOT_SLOT_CLEARED")
 	ULootFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
 	ULootFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+	ULootFrame:RegisterEvent("LOOT_SLOT_CHANGED")
 
 	-- Disable default frame
-	LootFrame:UnregisterEvent("LOOT_OPENED")
-	LootFrame:UnregisterEvent("LOOT_CLOSED")
-	LootFrame:UnregisterEvent("LOOT_SLOT_CLEARED")
+	LootFrame:UnregisterAllEvents()
 
 	-- Register for escape close
 	table.insert(UISpecialFrames, "ULootFrame")
 
-	-- Reattach master looter frame
-	MasterLooterFrame:SetScript('OnShow',
-	function(self)
-		if ULootFrame:IsVisible() then
-			MasterLooterFrame:SetFrameLevel(ULootFrame:GetFrameLevel()+2)
-			MasterLooterFrame:ClearAllPoints()
-			MasterLooterFrame:SetPoint("BOTTOM",ULootFrame,"TOP")
-		end
-	end)
 end
 
 local preview_loot = {
@@ -911,7 +901,9 @@ do
 	end
 
 	function FramePrototype:OnHide()
-		pcall(LootFrame_OnHide)
+		if LootFrame and LootFrame.Hide then
+			LootFrame:Hide()
+		end
 		for i,v in ipairs(self.rows) do
 			v:Hide()
 		end
@@ -1186,7 +1178,7 @@ function ULootFrame:Update(no_snap, is_refresh)
 	-- Update rows
 	local max_quality, max_width, our_slot, slot, need_refresh = 0, 0, 0
 	for slot = 1, numloot do
-		local _, icon, name, quantity, currencyID, quality, locked, isQuestItem, questID, startsQuest = pcall(GetLootSlotInfo, slot)
+		local _, icon, name, quantity, currencyID, quality, locked, isQuestItem, questID, isActive = pcall(GetLootSlotInfo, slot)
 		-- Already looted or erroring slot
 		if not name then
 			if not is_refresh and opt.show_slot_errors then
@@ -1202,13 +1194,22 @@ function ULootFrame:Update(no_snap, is_refresh)
 			local autoloot = false
 			local slotType, slotData = GetLootSlotType(slot)
 			if slotType == LOOT_SLOT_ITEM then
-				slotData = GetItemInfoTable(GetLootSlotLink(slot))
-				slotData.slotType = slotType
-				slotData.quantity = quantity
-				slotData.locked = locked
-				slotData.questItem = isQuestItem
-				slotData.questID = questID
-				slotData.startsQuest = startsQuest
+				local link = GetLootSlotLink(slot)
+				slotData = link and GetItemInfoTable(link)
+				if not slotData then
+					slotData = {
+						name = name, link = link, icon = icon,
+						quality = quality, slotType = slotType,
+						quantity = quantity, locked = locked, bindType = 0,
+					}
+				else
+					slotData.slotType = slotType
+					slotData.quantity = quantity
+					slotData.locked = locked
+					slotData.questItem = isQuestItem
+					slotData.questID = questID
+					slotData.isActive = isActive
+				end
 			else
 				slotData = {
 					name = name,
@@ -1230,7 +1231,7 @@ function ULootFrame:Update(no_snap, is_refresh)
 				if (auto.all or auto.currency) and (slotType == LOOT_SLOT_MONEY or slotType == LOOT_SLOT_CURRENCY) then
 					autoloot = true
 				-- Quest items
-				elseif (auto.all or auto.quest) and (isQuestItem or startsQuest) then
+				elseif (auto.all or auto.quest) and (isQuestItem or isActive) then
 					autoloot = true
 				-- Autolooting items
 				elseif
@@ -1328,7 +1329,8 @@ function addon:LOOT_CLOSED()
 	end
 	ULootFrame:Hide()
 	StaticPopup_Hide('LOOT_BIND')
-	if UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
+	if UIDropDownMenu_GetCurrentDropDown and UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
+		-- TODO: Migrate to MenuUtil when UIDropDownMenu is fully removed
 		CloseDropDownMenus()
 	end
 end
@@ -1373,6 +1375,12 @@ end
 function addon:MODIFIER_STATE_CHANGED(self, modifier, state)
 	if (GetNumLootItems() ~= 0) and mouse_focus and MouseIsOver(mouse_focus) then
 		mouse_focus:ShowTooltip()
+	end
+end
+
+function addon:LOOT_SLOT_CHANGED(slot)
+	if ULootFrame:IsShown() then
+		ULootFrame:Update(true)
 	end
 end
 
