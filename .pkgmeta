@@ -16,4 +16,5 @@ ignore:
 move-folders:
   ULoot/Modules/Frame: ULoot_Frame
   ULoot/Modules/Group: ULoot_Group
+  ULoot/Modules/Monitor: ULoot_Monitor
   ULoot/Modules/Options: ULoot_Options

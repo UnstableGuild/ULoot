@@ -443,6 +443,11 @@ function addon:OnEnable() -- Construct addon option tables here
 		{ "down", L.down }
 	}
 
+	local leftright = {
+		{ "left", L.left },
+		{ "right", L.right },
+	}
+
 	-- Shared Media
 	local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
 
@@ -605,6 +610,56 @@ function addon:OnEnable() -- Construct addon option tables here
 			}},
 		})
 	end
+
+	-- ULoot Monitor
+	if ULoot:GetModule("Monitor", true) then
+		addon:RegisterOptions({ name = "Monitor", addon =  ULootMonitor.addon }, {
+			{ "testing", "group", {
+				{ "test_settings", "execute", func = ULootMonitor.TestSettings }
+			}},
+			{ "anchor", "group", {
+				{ "visible", set = set_anchor, width = "double" },
+				{ "scale", "scale" },
+				{ "direction", directions, name = L.growth_direction },
+				{ "alignment", leftright, name = L.alignment },
+				{ "offsets", "header", name = '' },
+				{ "spacing", "range", -25, 25, 1, name = L.spacing, subtable = "anchor" },
+				{ "offset", "range", -25, 25, 1, name = L.offset, subtable = "anchor" },
+			}, defaults = { subtable = "anchor" } },
+			{ "thresholds", "group", {
+				{ "threshold_own", item_qualities, name = L.items_own },
+				{ "threshold_other", item_qualities, name = L.items_others },
+			}},
+			{ "filters", "group", {
+				{ "show_coin", name = MONEY },
+				{ "show_currency", name = CURRENCY },
+				{ "show_crafted" },
+			}, name = FILTERS },
+			{ "fading", "group", {
+				{ "fade_own", "range", 1, 30, 1, name = L.items_own },
+				{ "fade_other", "range", 1, 30, 1, name = L.items_others },
+			}},
+			{ "details", "group", {
+				{ "show_totals", width = "double" },
+				{ "use_altoholic", requires = "show_totals" },
+				{ "totals_delay", "range", 0.1, 1.0, 0.1 },
+				{ "name_width", "range", 25, 200, 5 },
+				{ "show_ilvl", name = L.Group.text_ilvl },
+			}},
+			{ "font", "group", {
+				{ "font", fonts },
+				{ "font_flag", font_flag },
+				{ "font_sizes", "header" },
+				{ "font_size_loot", "range", 4, 26, 1 },
+				{ "font_size_quantity", "range", 4, 26, 1 },
+				{ "font_size_ilvl", "range", 4, 26, 1 },
+			}},
+			{ "colors", "group", {
+				{ "gradients", must_reload_ui = true },
+			}, name = L.Frame.colors },
+		})
+	end
+
 
 	addon:Init()
 end
