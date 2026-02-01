@@ -134,14 +134,6 @@ function ULoot:OnInitialize()
 end
 
 function ULoot:OnEnable()
-	-- Check for old addons
-	for _,name in ipairs({ "XLoot1.0", "ULootGroup", "ULootMonitor" }) do
-		if C_AddOns.IsAddOnLoaded(name) then
-			C_AddOns.DisableAddOn(name)
-			wprint(("|c2244dd22ULoot|r now includes |c2244dd22%s|r - the old version will be disabled on next load, and no longer needs to be installed."):format(name))
-		end
-	end
-
 	-- Create option stub
 	if Settings then
 		C_AddOns.EnableAddOn("ULoot_Options")
