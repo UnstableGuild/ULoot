@@ -81,9 +81,7 @@ local locales = {
 			-- Group labels
 			anchors = "Anchors",
 			rolls = "Roll frames",
-			other_frames = "Other frames",
 			roll_tracking = "What rolls to show",
-			alerts = "Loot alerts",
 			extra_info = "Details",
 
 			-- Header labels
@@ -100,20 +98,9 @@ local locales = {
 			show_decided = "Show decided",
 			show_undecided = "List waiting players",
 			show_undecided_desc = "List players who have not chosen how to roll",
-			hook_alert = "Modify loot alerts",
-			hook_alert_desc = "('You won..' popups)\nAttach loot alerts to a movable anchor.\n\nDisabling this can improve compatibility with other loot addons. \n\n(Requires ReloadUI)",
-			alert_skin = "Skin loot alert frames",
-			alert_offset = "Vertical spacing",
-			alert_background = "Show background",
-			alert_icon_frame = "Show icon frame",
-			hook_bonus = "Modify bonus rolls",
-			hook_bonus_desc = "Attach bonus loot rolls to a movable anchor.\n\nDisabling this can improve compatibility with other loot addons. \n\n(Requires ReloadUI)",
-			bonus_skin = "Skin bonus roll frame",
 			roll_width = "Roll frame width",
 			roll_button_size = "Roll button size",
 			roll_anchor_visible = "Roll anchor visible",
-			alert_anchor_visible = "Loot alerts anchor visible",
-			alert_anchor_visible_desc = "Refers to 'You won..' popups",
 			track_all = "Track all rolls",
 			track_player_roll = "Track items you roll on",
 			track_by_threshold = "Track items by minimum quality",
@@ -125,7 +112,6 @@ local locales = {
 			prefix_equippable = "Equippable prefix",
 			prefix_upgrade = "Upgrade prefix",
 
-			hook_warning_text = "Hooking the loot alert and bonus roll frames has rarely been reported to cause issues such as not seeing bonus rolls.\n\nBy enabling these options you acknowledge that you understand and accept that risk.\n",
 		},
 		font = "Font",
 		font_sizes = "Sizes",

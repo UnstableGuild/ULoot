@@ -3,7 +3,7 @@ local addon, L = ULoot:NewModule("Group")
 -- Prepare global
 ULootGroup = addon
 -- Grab locals
-local opt, anchor, alert_anchor, mouse_focus, Skinner
+local opt, anchor, mouse_focus, Skinner
 local rolls = {}
 local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS
 local GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string_format
@@ -29,17 +29,6 @@ local defaults = {
 		prefix_equippable = "*",
 		prefix_upgrade = "+",
 
-		hook_alert = false,
-		alert_skin = true,
-		alert_alpha = 1,
-		alert_scale = 1,
-		alert_offset = 4,
-		alert_background = false,
-		alert_icon_frame = false,
-
-		hook_bonus = false,
-		bonus_skin = true,
-
 		roll_button_size = 28,
 		roll_width = 325,
 
@@ -55,15 +44,6 @@ local defaults = {
 			scale = 1.0,
 			x = UIParent:GetWidth() * .75,
 			y = UIParent:GetHeight() * .4
-		},
-
-		alert_anchor = {
-			visible = true,
-			direction = 'up',
-			draggable = true,
-			scale = 1.0,
-			x = AlertFrame:GetLeft(),
-			y = AlertFrame:GetTop()
 		},
 
 		track_all = false,
@@ -109,9 +89,6 @@ function addon:OnEnable()
 		anchor_pretty = { r = .6, g = .6, b = .6, a = .8 },
 		row = { gradient = false },
 		item = { backdrop = false },
-		alert = { gradient = true },
-		alert_item = { gradient = true, backdrop = false },
-		bonus = { }
 	}, 'row')
 
 	-- Create Roll anchor
@@ -120,17 +97,8 @@ function addon:OnEnable()
 	anchor:Scale(opt.roll_anchor.scale)
 	addon.anchor = anchor
 
-	-- Create alert anchor
-	alert_anchor = ULoot.Stack:CreateAnchor(L.alert_anchor, opt.alert_anchor)
-	alert_anchor:SetFrameLevel(7)
-	addon.alert_anchor = alert_anchor
-	--  DISABLED-PATCH: LEGION PRE-PATCH
-	alert_anchor.Show = alert_anchor.Hide
-	alert_anchor:Hide()
-
 	-- Skin anchor
 	Skinner:Skin(anchor, ULoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
-	Skinner:Skin(alert_anchor, ULoot.opt.skin_anchors and 'anchor_pretty' or 'anchor')
 
 	-- Row fader
 	local fader = CreateFrame('Frame')
@@ -364,92 +332,9 @@ function addon:MODIFIER_STATE_CHANGED()
 	end
 end
 
-local alert_frames = {}
-function addon.AlertFrameHook(alert)
-	if not opt.hook_alert then return end
-	-- Reskin toast
-	local elements = alert_frames[alert]
-	if not elements then
-		elements = {}
-		if not (opt.alert_background and opt.alert_icon_frame) then
-			local name
-			if alert.ItemName then
-				name = alert.ItemName
-				alert.Label:ClearAllPoints()
-				alert.Label:SetPoint('TOPLEFT', alert.Icon, 'TOPRIGHT', 15, -5)
-			elseif alert.BaseQualityItemName then
-				name = alert.BaseQualityItemName
-				alert.TitleText:ClearAllPoints()
-				alert.TitleText:SetPoint('TOPLEFT', alert.Icon, 'TOPRIGHT', 15, -2)
-			elseif alert.Amount then
-				name = alert.Amount
-				alert.Label:ClearAllPoints()
-				alert.Label:SetPoint('TOPLEFT', alert.Icon, 'TOPRIGHT', 15, -2)
-			end
-			if name then
-				name:ClearAllPoints()
-				name:SetPoint('LEFT', alert.Icon, 'RIGHT', 10, -6)
-			end
-		end
-		if opt.alert_skin then
-			local overlay = CreateFrame('Frame', nil, alert, "BackdropTemplate")
-			overlay:SetPoint('TOPLEFT', 11, -11)
-			overlay:SetPoint('BOTTOMRIGHT', -11, 11)
-			overlay:SetFrameLevel(alert:GetFrameLevel())
-			elements.overlay = overlay
-			Skinner:Skin(overlay, 'alert')
-			if opt.alert_background then
-				local backdrop = CreateFrame('Frame', nil, alert, "BackdropTemplate")
-				backdrop:SetAllPoints(overlay)
-				backdrop:SetFrameLevel(alert:GetFrameLevel()-1)
-				overlay.gradient:SetParent(backdrop)
-			end
-
-			local icon_frame = CreateFrame('Frame', nil, alert, "BackdropTemplate")
-			icon_frame:SetPoint('CENTER', alert.Icon, 'CENTER', 0, 0)
-			icon_frame:SetWidth(alert.Icon:GetWidth() + 4)
-			icon_frame:SetHeight(alert.Icon:GetHeight() + 4)
-			elements.icon_frame = icon_frame
-			Skinner:Skin(icon_frame, 'alert_item')
-		end
-
-		alert_frames[alert] = elements
-	end
-	if alert.Background then alert.Background:SetShown(opt.alert_background) end
-	if alert.IconBorder then alert.IconBorder:SetShown(opt.alert_icon_frame) end
-	if alert.BaseQualityBorder then alert.BaseQualityBorder:SetShown(opt.alert_icon_frame) end
-	if alert.UpgradeQualityBorder then alert.UpgradeQualityBorder:SetShown(opt.alert_icon_frame) end
-	alert:SetAlpha(opt.alert_alpha)
-	alert:SetScale(opt.alert_scale)
-
-	-- Update toast
-	if opt.alert_skin then
-		local c
-		if alert.hyperlink then
-			local _, _, rarity = GetItemInfo(alert.hyperlink)
-			c = ITEM_QUALITY_COLORS[rarity]
-		else
-			c = {r = 1, g = .8, b = 0.1}
-		end
-		if type(c) == "table" then -- Sanity check due to 5.4.1 reported error
-			elements.overlay:SetGradientColor(c.r, c.g, c.b, .2)
-			elements.icon_frame:SetGradientColor(c.r, c.g, c.b, .2)
-			elements.overlay:SetBorderColor(c.r, c.g, c.b)
-			elements.icon_frame:SetBorderColor(c.r, c.g, c.b)
-		end
-	end
-end
-
-local AlertFrameTables = {
-	'LOOT_WON_ALERT_FRAMES',
-	'LOOT_UPGRADE_ALERT_FRAMES',
-	'MONEY_WON_ALERT_FRAMES'
-}
-
 function addon.SlashHandler(msg)
 	if msg == 'reset' then
 		anchor:Position()
-		alert_anchor:Position()
 	elseif msg == 'opt' or msg == 'options' then
 		addon.ShowOptions()
 	else
@@ -459,13 +344,11 @@ end
 
 function addon:UpdateAnchors()
 	anchor:SetShown(opt.roll_anchor.visible)
-	alert_anchor:SetShown(opt.alert_anchor.visible)
 end
 
 function addon.ToggleAnchors()
 	local state = anchor:IsShown()
 	anchor:SetShown(not state)
-	alert_anchor:SetShown(not state)
 end
 
 -------------------------------------------------------------------------------
@@ -890,7 +773,6 @@ function addon:ApplyOptions()
 	opt = self.opt
 
 	anchor:UpdateSVData(opt.roll_anchor)
-	alert_anchor:UpdateSVData(opt.alert_anchor)
 
 	self:SkinUpdate()
 
@@ -963,15 +845,6 @@ end
 ULoot:SetSlashCommand('ulgd', ULootGroup.TestSettings)
 
 --@do-not-package@
-local function alert()
-	local _, link = GetItemInfo(preview_loot[random(1, #preview_loot)][1])
-	LootWonAlertFrame_ShowAlert(link, random(1, 4), random(1, 4)-1, random(1, 100))
-	LootUpgradeFrame_ShowAlert(link, random(1, 4), 1, random(1,4)-1)
-	MoneyWonAlertFrame_ShowAlert(random(1, 100000))
-end
-
-ULoot:SetSlashCommand('ulga', alert)
-
 local AC = LibStub('AceConsole-2.0', true)
 if AC then print = function(...) AC:PrintLiteral(...) end end
 --@end-do-not-package@
