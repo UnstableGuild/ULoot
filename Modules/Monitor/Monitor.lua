@@ -88,7 +88,7 @@ function addon:OnEnable()
 		anchor = { r = .4, g = .4, b = .4, a = .6, gradient = false },
 		anchor_pretty = { r = .6, g = .6, b = .6, a = .8 },
 		item = { backdrop = false, gradient = opt.gradients },
-		item_highlight = { type = "highlight", layer = "overlay" },
+		item_highlight = { type = "highlight", layer = "OVERLAY" },
 		row_highlight = { type = "highlight" }
 	})
 	-- Set up anchor

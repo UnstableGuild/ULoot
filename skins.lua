@@ -29,6 +29,11 @@ lib.base = {
 	bar_texture = [[Interface\AddOns\ULoot\Textures\bar]],
 	color_mod = .75,
 	row_spacing = 2,
+	padding = 2,
+	size = 16,
+	layer = 'ARTWORK',
+	mode = 'BLEND',
+	r = 1, g = 1, b = 1, a = 1,
 }
 
 -- Skin registration
@@ -316,6 +321,11 @@ do
 		-- Apply set overrides
 		for k,v in pairs(set) do
 			out[k] = v
+		end
+		-- Highlight defaults (meta() metatable is lost after compile)
+		if set.type == 'highlight' then
+			if not out.layer then out.layer = 'HIGHLIGHT' end
+			if not out.mode then out.mode = 'ADD' end
 		end
 		-- Apply metatable
 		setmetatable(out, getmetatable(skin))
