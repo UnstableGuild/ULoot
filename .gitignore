@@ -1,0 +1,13 @@
+# BigWigs packager output
+.release/
+
+# Pre-commit hooks
+.pre-commit-config.yaml
+
+# AI context (symlinked from ai-memory)
+CLAUDE.md
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db

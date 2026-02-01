@@ -1,0 +1,31 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get next version
+        uses: reecetech/version-increment@2023.9.3
+        id: version
+        with:
+          scheme: semver
+          increment: patch
+          release_branch: main
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+          tag_name: ${{ steps.version.outputs.v-version }}
+          name: ${{ steps.version.outputs.v-version }}
+          generate_release_notes: true

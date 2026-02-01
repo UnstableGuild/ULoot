@@ -25,6 +25,12 @@ externals:
 
 ignore:
 	- .pkgmeta
+	- .github
+	- .gitignore
+	- .pre-commit-config.yaml
+	- README.md
+	- CLAUDE.md
+	- .claude
 
 move-folders:
 	ULoot/Modules/Frame: ULoot_Frame
