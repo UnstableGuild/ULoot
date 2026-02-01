@@ -2,7 +2,7 @@
 local ULoot = LibStub("AceAddon-3.0"):NewAddon(select(2, ...), "ULoot")
 _G.ULoot = ULoot
 local L = ULoot.L
-local print, wprint = print, print
+local print = print
 
 -------------------------------------------------------------------------------
 -- Settings
@@ -135,16 +135,8 @@ end
 
 function ULoot:OnEnable()
 	-- Create option stub
-	if Settings then
-		C_AddOns.EnableAddOn("ULoot_Options")
-		C_AddOns.LoadAddOn("ULoot_Options")
-	else
-		local stub = CreateFrame("Frame", "ULootConfigPanel", UIParent)
-		stub.name = "ULoot"
-		stub:Hide()
-		InterfaceOptions_AddCategory(stub)
-		stub:SetScript("OnShow", function() self:ShowOptionPanel(self) end)
-	end
+	C_AddOns.EnableAddOn("ULoot_Options")
+	C_AddOns.LoadAddOn("ULoot_Options")
 	self:SetSlashCommand("uloot", function() self:ShowOptionPanel(self) end)
 end
 

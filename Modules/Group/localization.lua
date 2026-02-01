@@ -1,4 +1,3 @@
-﻿-- See: http://wow.curseforge.com/addons/xloot/localization/ to create or fix translations
 local locales = {
 	enUS = {
 		anchor = "Group Rolls",

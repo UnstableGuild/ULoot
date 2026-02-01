@@ -8,8 +8,6 @@ local rolls = {}
 local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS
 local GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string_format
 	= GetLootRollItemInfo, GetLootRollItemLink, GetLootRollTimeLeft, RollOnLoot, UnitGroupRolesAssigned, print, string.format
--- C_LootHistory.GetItem/GetPlayerInfo/GetNumItems removed in 12.0
--- TODO: Reimplement via C_LootHistory.GetAllEncounterInfos/GetSortedInfoForDrop
 local CanEquipItem, IsItemUpgrade, FancyPlayerName = ULoot.CanEquipItem, ULoot.IsItemUpgrade, ULoot.FancyPlayerName
 local RollFramePrototype
 
@@ -17,7 +15,7 @@ local BUILD_NUMBER = select(4, GetBuildInfo())
 local BUILD_HAS_DISENCHANT = BUILD_NUMBER >= 30300
 local BUILD_HAS_TRANSMOG_GREED = BUILD_NUMBER >= 49407
 
-local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+local GetItemInfo = C_Item.GetItemInfo
 
 -------------------------------------------------------------------------------
 -- Settings
@@ -171,7 +169,7 @@ function addon:OnEnable()
 
 	-- Find and show active rolls
 	if IsInGroup() then
-		local activeIDs = GetActiveLootRollIDs and GetActiveLootRollIDs() or {}
+		local activeIDs = GetActiveLootRollIDs()
 		for _, rollID in ipairs(activeIDs) do
 			local time = GetLootRollTimeLeft(rollID)
 			if time > 0 and time < 300000 then
@@ -292,9 +290,8 @@ function addon:START_LOOT_ROLL(id, length, uid, ongoing)
 end
 
 function addon:LOOT_ROLLS_COMPLETE(lootHandle)
-	-- Mark all active roll frames as complete
 	for rollID, frame in pairs(rolls) do
-		if not frame.over then
+		if not frame.over and GetLootRollTimeLeft(rollID) == 0 then
 			frame.over = true
 			frame.need:Hide()
 			frame.greed:Hide()
@@ -430,8 +427,6 @@ do
 		end
 	end
 
-	-- Simplified: just show item tooltip, no per-player roll breakdown
-	-- TODO: Implement detailed tracking via C_LootHistory.GetSortedInfoForDrop()
 	local function AddTooltipLines(self, show_all, show)
 		return false
 	end
@@ -585,7 +580,6 @@ do
 			return
 		end
 		local time = GetTime()
-		-- TODO: Remove?
 		local status, result = pcall(GetLootRollTimeLeft, parent.rollid)
 		if not status or result == 0 then
 			local ended = parent.rollended
@@ -597,7 +591,6 @@ do
 				parent.rollended = time
 			end
 		end
-		-- /TODO
 		local remaining = self.expires - time
 		if remaining < -4 then
 			anchor:Pop(parent)

@@ -168,7 +168,6 @@ do
 	local g_color = { .5, .5, .5, .6 }
 
 	-- Frame methods
-	-- https://www.wowace.com/projects/xloot/issues/205 is not reproducible, but user gets error reliably
 	local alphaworks = false
 	local function SetBorderColor(self, r, g, b, a)
 		for i, x in pairs(self._skin_borders) do
@@ -262,7 +261,6 @@ do
 		options = meta(options or highlight)
 
 		frame._highlights = create_borders(frame, options)
-		frame._higlight_options = options
 
 		frame.ShowHighlight = ShowHighlight
 		frame.HideHighlight = HideHighlight
@@ -274,7 +272,6 @@ do
 	end
 
 	function lib:UpdateHighlight(frame, options, r, g, b, a)
-		frame._higlight_options = meta(options)
 		update_borders(frame, options, frame._highlights, r, g, b, a)
 	end
 end

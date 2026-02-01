@@ -54,7 +54,7 @@ local LOOT_SLOT_MONEY = LOOT_SLOT_MONEY or Enum.LootSlotType.Money
 local LOOT_SLOT_CURRENCY = LOOT_SLOT_CURRENCY or Enum.LootSlotType.Currency
 
 local GetContainerNumFreeSlots = C_Container and C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots
-local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+local GetItemInfo = C_Item.GetItemInfo
 
 -- Chat output
 local print, wprint = print, print
@@ -314,8 +314,6 @@ do
 
 		local linkthreshold, reached = opt.linkall_threshold
 
-		local first_only = opt.linkall_first_only
-
 		for i=1, GetNumLootItems() do
 			if GetLootSlotType(i) == LOOT_SLOT_ITEM then
 				local _, _, quantity, _, rarity = GetLootSlotInfo(i)
@@ -344,7 +342,7 @@ do
 			channel = 'PARTY'
 		end
 		for k, v in pairs(output) do
-			v  = string.gsub(v, "\n", " ", 1, true) -- DIE NEWLINES, DIE A HORRIBLE DEATH
+			v = string.gsub(v, "\n", " ")
 			SendChatMessage(v, channel)
 			if opt.linkall_channel_secondary ~= 'NONE' then
 				SendChatMessage(v, opt.linkall_channel_secondary)
@@ -481,7 +479,7 @@ do
 	end
 
 	function RowPrototype:SetHighlightColor(r, g, b, a)
-		self:SetHighlightColor(r, g, b, a)
+		self:_SetHighlightColor(r, g, b, a)
 		self.frame_item:SetHighlightColor(r, g, b, a)
 	end
 
@@ -1330,7 +1328,6 @@ function addon:LOOT_CLOSED()
 	ULootFrame:Hide()
 	StaticPopup_Hide('LOOT_BIND')
 	if UIDropDownMenu_GetCurrentDropDown and UIDropDownMenu_GetCurrentDropDown() == LinkDropdown then
-		-- TODO: Migrate to MenuUtil when UIDropDownMenu is fully removed
 		CloseDropDownMenus()
 	end
 end

@@ -171,8 +171,6 @@ function addon:OnEnable() -- Construct addon option tables here
 		return values
 	end
 
-	-- Dependencies
-	-- TODO: Recursive dependencies
 	local function requires(info)
 		local db, k, meta, full_db = path(info)
 		return ((meta.requires and (not full_db[meta.requires]) or false)
@@ -344,8 +342,6 @@ function addon:OnEnable() -- Construct addon option tables here
 				opts.must_reload_ui = nil
 			end
 
-			-- Sorted select
-			-- TODO: Set metatable on option table to update meta.items?
 			if opts.type == "select" and opts.items then
 				opts.values = values_from_items
 				meta.values = {}
@@ -724,21 +720,11 @@ function addon:Init()
 	-- One-time init
 	if not init then
 		init = true
-		if not Settings then
-			-- Remove bootstrap
-			for i,frame in ipairs(INTERFACEOPTIONS_ADDONCATEGORIES) do
-				if frame.name == "ULoot" then
-					table.remove(INTERFACEOPTIONS_ADDONCATEGORIES, i)
-				end
-			end
-		end
-		-- Generate new panel
+
 		AceConfigRegistry:RegisterOptionsTable("ULoot", self.config)
 		local panel = AceConfigDialog:AddToBlizOptions("ULoot")
 		ULoot.option_panel = panel
 		panel.default = PanelDefault
-		-- panel.okay = PanelOkay
-		-- panel.cancel = PanelCancel
 
 		local _OnShow = panel:GetScript("OnShow")
 		local _OnHide = panel:GetScript("OnHide")
@@ -768,12 +754,7 @@ end
 
 function addon:OpenPanel(module)
 	addon:Init()
-	-- Open panel
-	if Settings then
-		Settings.OpenToCategory("ULoot")
-	else
-		InterfaceOptionsFrame_OpenToCategory(ULoot.option_panel)
-	end
+	Settings.OpenToCategory("ULoot")
 end
 
 --@do-not-package@

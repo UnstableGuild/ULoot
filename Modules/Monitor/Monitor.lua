@@ -10,7 +10,7 @@ local CopperToString, FancyPlayerName = ULoot.CopperToString, ULoot.FancyPlayerN
 local table_insert, table_remove = table.insert, table.remove
 local me = UnitName("player")
 
-local GetItemInfo = C_Item and C_Item.GetItemInfo or GetItemInfo
+local GetItemInfo = C_Item.GetItemInfo
 
 -------------------------------------------------------------------------------
 -- Settings
@@ -473,7 +473,7 @@ local function test_item(event, is_me)
 end
 
 local function test_coin(event, is_me)
-	addon.LOOT_EVENT('coin', event, random_player(is_me), random(1, 500000), "TODO")
+	addon.LOOT_EVENT('coin', event, random_player(is_me), random(1, 500000))
 end
 
 local function test_currency(event)
