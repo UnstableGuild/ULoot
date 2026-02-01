@@ -366,6 +366,7 @@ end
 
 local alert_frames = {}
 function addon.AlertFrameHook(alert)
+	if not opt.hook_alert then return end
 	-- Reskin toast
 	local elements = alert_frames[alert]
 	if not elements then
