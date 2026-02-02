@@ -101,50 +101,21 @@ local locales = {
 			equip_prefix_desc = "Prefixes item names to indicate if a item can be equipped or is a upgrade. (Upgrade prefix requires the Pawn addon)",
 			prefix_equippable = "Equippable prefix",
 			prefix_upgrade = "Upgrade prefix",
-		},
-		Monitor = {
-			panel_title = "Loot Monitor",
-			-- Group labels
-			testing = "Testing",
-			anchor = "Anchor",
-			thresholds = "Quality thresholds",
-			fading = "Row fade times (in seconds)",
-			details = "Details",
-			-- Option labels
-			test_settings = "Click to test settings",
-			visible = "Anchor visible",
-			show_crafted = "Crafted",
-			show_totals = "Show total items in inventory",
-			totals_delay = "Totals delay",
-			totals_delay_desc = "Time to wait before asking the game how many items you have, as the item events do not reliably match up to inventory counts",
-			use_altoholic = "Include bank (Altoholic)",
-			font_size_ilvl = "Item level",
-			name_width = "Player name width",
-			gradients = "Gradients",
+
 		},
 		font = "Font",
-		font_sizes = "Sizes",
-		font_size_loot = "Loot",
-		font_size_quantity = "Quantity",
 		font_flag = "Flag",
 		growth_direction = "Growth direction",
-		alignment = "Alignment",
-		scale = "Scale",
 		width = "Width",
-		alpha = "Opacity",
 		spacing = "Spacing",
 		offset = "Offset",
-		visible = "Visible",
 		padding = "Padding",
-		items_others = "Others' items",
-		items_own = "Own items",
 		up = "Up",
 		down = "Down",
 		left = "Left",
 		right = "Right",
 		top = "Top",
 		bottom = "Bottom",
-		minimum_quality = "Minimum quality",
 		when_never = "Never",
 		when_solo = "Solo",
 		when_always = "Always",
@@ -226,15 +197,5 @@ local locales = {
 --@localization(locale="zhCN", format="lua_additive_table", table-name="locales.zhCN", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Group")@
 --@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Group")@
 --@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Group")@
-
---@localization(locale="ptBR", format="lua_additive_table", table-name="locales.ptBR", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="frFR", format="lua_additive_table", table-name="locales.frFR", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="deDE", format="lua_additive_table", table-name="locales.deDE", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="koKR", format="lua_additive_table", table-name="locales.koKR", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="esMX", format="lua_additive_table", table-name="locales.esMX", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="ruRU", format="lua_additive_table", table-name="locales.ruRU", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="zhCN", format="lua_additive_table", table-name="locales.zhCN", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="esES", format="lua_additive_table", table-name="locales.esES", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
---@localization(locale="zhTW", format="lua_additive_table", table-name="locales.zhTW", handle-subnamespaces="subtable", handle-unlocalized="ignore", namespace="Monitor")@
 
 ULoot:Localize("Options", locales)
